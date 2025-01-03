@@ -1,3 +1,8 @@
 /node_modules
 /package-lock.json
 /package.json
+/.env
+/dist
+/tsconfig.json
+/eslint.config.mjs
+/jest.config.ts

@@ -1,6 +1,6 @@
 ###
 
-GET http://localhost:3000/posts
+GET http://localhost:3000/posts/6777832d405edb6f85461559
 
 ###
 
@@ -20,7 +20,7 @@ Content-Type: application/json
 
 ###
   
-PUT  http://localhost:3000/posts/674351dc40008d360d8ca509
+PUT  http://localhost:3000/posts/6753ef9849a93e2b5d99241a
 Content-Type: application/json
 
 {
@@ -55,23 +55,25 @@ GET http://localhost:3000/comments?post_id=adawda14123dawdwq21413241
 POST  http://localhost:3000/comments
 Content-Type: application/json
 
-{
-"post_id": "adawda14123dawdwq21413241",   
+{   
 "comment": "This is my first comment!",
+"commentId": "adawda14123dawdwq21413241",
+"owner":"Yotam"
 }
 ###
   
-PUT  http://localhost:3000/comments/674351dc40008d360d8ca509
+PUT  http://localhost:3000/comments/6772e9c0b8fc22ad6b109449
 Content-Type: application/json
 
 {
-"post_id": "adawda14123dawdwq21awdawdawdwadawekfmwawdkl413241",   
-"comment": "This is my firsdmaw,dkmawkldadwt comment!",
+"comment": "hello!",
+"commentId": "44444",
+"owner":"Yuri"
 } 
 
 
 
 ###
 
-DELETE  http://localhost:3000/comments/awdawdewjfj23oi4mo32s
+DELETE  http://localhost:3000/comments/6772e95c587ad7ffc953dfa6
 
