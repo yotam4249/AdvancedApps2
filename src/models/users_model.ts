@@ -5,6 +5,7 @@ export interface iUser {
     email:string,
     password : string,
     _id?:string
+    refreshTokens?:string[]
 }
 
 const userSchema= new moongose.Schema<iUser>({
@@ -15,6 +16,10 @@ const userSchema= new moongose.Schema<iUser>({
     password: {type :String,
         required:true,
     },
+    refreshTokens:{
+        type:[String],
+        default:[]
+    }
 });
 const userModel=moongose.model<iUser>('Users',userSchema)
 

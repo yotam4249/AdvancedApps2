@@ -7,7 +7,10 @@ import userModel, { iUser } from "../models/users_model";
 
 let app:Express;
 
-type User = iUser & { token?: string };
+type User=iUser & {
+    accessToken?:string
+    refreshToken?:string
+}
 const testUser: User = {
   email: "test@user.com",
   password: "testpassword",
@@ -18,10 +21,13 @@ beforeAll(async ()=>{
     await commentModel.deleteMany()
     await userModel.deleteMany();
     await request(app).post("/auth/register").send(testUser);
-    const res = await request(app).post("/auth/login").send(testUser);
-    testUser.token = res.body.token;
+    const res = await request(app).post("/auth/login").send({
+        email:testUser.email,
+        password:testUser.password
+    });
+    testUser.accessToken = res.body.accessToken;
     testUser._id = res.body._id;
-    expect(testUser.token).toBeDefined();
+    expect(testUser.accessToken).toBeDefined();
 })
 
 afterAll(async ()=>{
@@ -49,7 +55,7 @@ describe("Comments test ",()=>{
 
     test("Add new comment", async()=>{
         const response = await request(app).post("/comments")
-        .set({ authorization: "JWT " + testUser.token })
+        .set({ authorization: "JWT " + testUser.accessToken })
         .send(testComment)
         expect(response.statusCode).toBe(201)
         expect(response.body.comment).toBe("Comment title")

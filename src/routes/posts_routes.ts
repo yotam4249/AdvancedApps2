@@ -3,6 +3,15 @@ const router= express.Router();
 import postController from "../controllers/post_controller" 
 import { authMiddleware } from "../controllers/auth_controller";
 
+
+/**
+* @swagger
+* tags:
+*   name: Posts
+*   description: The Posts API
+*/
+
+
 router.get("/", postController.getAll.bind(postController));
 
 router.get("/:id", postController.getById.bind(postController));
