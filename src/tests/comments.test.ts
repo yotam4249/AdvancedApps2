@@ -18,20 +18,16 @@ const testUser: User = {
 let accessToken: string;
 
 
-const testComment = {
-    comment:"Comment title",
-    owner:"Yotam",  
-    postId:"546a4sdasd"
-}
 
 beforeAll(async ()=>{
     app = await initApp()
     await commentModel.deleteMany()
     const response=await request(app).post("/auth/register").send(testUser);
     const response2= await request(app).post("/auth/login").send(testUser);
+    testUser.accessToken = response2.body.accessToken;
+    testUser._id = response2.body._id;
     expect(response2.statusCode).toBe(200);
     accessToken = response2.body.token;
-    testComment.owner = response2.body._id; 
     expect(testUser.accessToken).toBeDefined();
 })
 
@@ -39,7 +35,11 @@ afterAll(async ()=>{
     await mongoose.connection.close()
     
 })
-
+const testComment = {
+    comment:"Comment title",
+    owner:"Yotam",  
+    postId:"546a4sdasd"
+}
 
 const invalidComment ={
     comment:"asdasd"
@@ -56,9 +56,11 @@ describe("Comments test ",()=>{
 
     test("Add new comment", async()=>{
         const response = await request(app).post("/comments")
-        .set({ authorization: "JWT " + accessToken })
+        .set({ authorization: "JWT " + testUser.accessToken })///////////need to change to accessToken
         .send(testComment)
         expect(response.statusCode).toBe(201)
+        expect(response.body.comment).toBe("Comment title")
+        expect(response.body.owner).toBe("Yotam")
         expect(response.body.comment).toBe(testComment.comment)
         expect(response.body.owner).toBe(testComment.owner)
         commentId = response.body._id

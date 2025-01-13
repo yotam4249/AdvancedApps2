@@ -15,7 +15,11 @@ const testUser: User = {
 email: "test@user.com",
 password: "testpassword",
 }
+<<<<<<< Updated upstream
 
+=======
+let postId="";
+>>>>>>> Stashed changes
 let accessToken: string;
 
 const testPost = {
@@ -31,6 +35,8 @@ beforeAll(async () => {
   expect(response2.statusCode).toBe(200);
   accessToken = response2.body.token;
   testPost.owner = response2.body._id;
+  testUser.accessToken = response2.body.accessToken;
+  testUser._id = response2.body._id;
 });
 
 afterAll((done) => {
@@ -39,7 +45,6 @@ afterAll((done) => {
   done();
 });
 
-let postId = "";
 describe("Posts Tests", () => {
   test("Posts test get all", async () => {
     const response = await request(app).get("/posts");
@@ -49,9 +54,11 @@ describe("Posts Tests", () => {
 
   test("Test Create Post", async () => {
     const response = await request(app).post("/posts").set({
-      authorization: "JWT " + accessToken,
+      authorization: "JWT " + testUser.accessToken,/////////need to change to accessToken
     }).send(testPost);
     expect(response.statusCode).toBe(201);
+    expect(response.body.title).toBe("Test Post");
+    expect(response.body.content).toBe("Test Content");
     expect(response.body.title).toBe(testPost.title);
     expect(response.body.content).toBe(testPost.content);
     postId = response.body._id;
