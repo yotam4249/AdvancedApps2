@@ -12,12 +12,21 @@ export class BaseController<T>{
     }
 
     async getAll(req:Request,res:Response){
-        try{
-            const item=await this.model.find();
-            res.status(200).send(item);
-        }catch(error){ res.status(400).send(error)};
-
-    };
+        const ownerFilter = req.query.owner;
+    try {
+      if (ownerFilter) {
+        const posts = await this.model.find({ owner: ownerFilter });
+        res.status(200).send(posts);
+      } else {
+        const posts = await this.model.find();
+        res.status(200).send(posts);
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  };
+    
     async getById(req: Request, res: Response) {
         try {
             const item = await this.model.findById(req.params.id);
