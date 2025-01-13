@@ -3,6 +3,35 @@ import userModel from "../models/users_model"
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
+
+const generateTokens = (_id:string):{accessToken:string,refreshToken:string}| null =>{
+
+    if(!process.env.TOKEN_SECRET)
+        {
+            return null
+        }
+    const random = Math.floor(Math.random() * 1000000)
+    const accessToken = jwt.sign({
+            _id: _id,
+            random: random
+        },
+        process.env.TOKEN_SECRET,
+        { expiresIn:process.env.TOKEN_EXPIRES })
+
+    
+    const refreshToken = jwt.sign(
+        {
+            _id:_id , 
+            random: random
+        },
+        process.env.TOKEN_SECRET,
+        { expiresIn:process.env.REFRESH_TOKEN_EXPIRES })
+        return {
+            accessToken,
+            refreshToken
+        }
+}
+
 const register = async(req:Request,res:Response)=>{
     try{
         const salt = await bcrypt.genSalt(10)
@@ -30,19 +59,135 @@ const login =  async(req:Request,res:Response)=>{
             res.status(400).send('bad info')
             return
         }
-        if(!process.env.TOKEN_SECRET)
-        {
-            res.status(500).send('bad token')
+        
+        const tokens = generateTokens(user._id.toString())
+
+        if(!tokens){
+            res.status(400).send('couldnt generate tokens')
             return
         }
-        const token = jwt.sign({ _id: user.id },
-            process.env.TOKEN_SECRET,
-            { expiresIn:process.env.TOKEN_EXPIRES })
-            res.status(200).send({token:token,_id:user._id})
 
+        if(user.refreshTokens == undefined || user.refreshTokens == null )
+        {
+            user.refreshTokens = [""];
+            await user.save()
+        }
+        user.refreshTokens.push(tokens.refreshToken)
+        await user.save()
+
+        res.status(200).send({
+                refreshToken:tokens.refreshToken,
+                accessToken:tokens.accessToken,
+                _id:user._id
+            })
     }catch(err){
         res.status(400).send(err)
     }
+}
+
+const logout = async(req:Request,res:Response)=>{
+    const refreshToken = req.body.refreshToken
+    if(!refreshToken)
+    {
+        res.status(401).send("no token")
+        return
+    }
+
+    if(!process.env.TOKEN_SECRET)
+    {
+        res.status(402).send("no token secret")
+        return
+    }
+    jwt.verify(refreshToken,process.env.TOKEN_SECRET,async (err:any,data:any)=>{
+        if(err){
+            res.status(403).send("no token secret")
+            return
+        }
+        try{
+            const payload = data as Payload
+            const user = await userModel.findOne({_id:payload._id})
+            if(!user){
+                res.status(404).send("no id")
+                return
+            }
+            if(!user.refreshTokens){
+                user.refreshTokens = undefined
+                await user.save()
+                res.status(405).send("no id")
+                return
+            }
+            if(!user.refreshTokens.includes(refreshToken))
+            {
+                user.refreshTokens = undefined
+                await user.save()
+                res.status(406).send("no id")
+                return
+            }
+            user.refreshTokens = user.refreshTokens.filter((token)=> token !== refreshToken)
+            await user.save()
+            res.status(200).send("logged out")
+        }catch(err){
+            res.status(400).send(err)
+            return
+        }
+    })
+}
+
+const refresh = async(req:Request,res:Response)=>{
+    const refreshToken = req.body.refreshToken
+    if(!refreshToken)
+    {
+        res.status(400).send("bad token")
+        return
+    }
+    if(!process.env.TOKEN_SECRET)
+    {
+        res.status(400).send("bad token")
+        return
+    }
+
+    jwt.verify(refreshToken,process.env.TOKEN_SECRET, async (err:any,data:any)=>{
+        if(err){
+            res.status(400).send("bad token")
+            return
+        }
+        try{
+            const payload = data as Payload
+            const user = await userModel.findOne({_id:payload._id})
+            if(!user){
+                res.status(400).send("bad token")
+                return
+            }
+            if(!user.refreshTokens || !user.refreshTokens.includes(refreshToken)|| user.refreshTokens == undefined){
+                user.refreshTokens = undefined
+                await user.save()
+                res.status(400).send("bad token")
+                return
+            }
+            const newTokens = generateTokens(user._id.toString())
+            if(!newTokens){
+                user.refreshTokens = undefined
+                await user.save()
+                res.status(400).send("bad token")
+                return
+            }
+            if(user.refreshTokens == undefined){
+                res.status(400).send("bad token")
+                return
+            }
+            user.refreshTokens = user.refreshTokens.filter((token)=> token !== refreshToken)
+            user.refreshTokens.push(newTokens.refreshToken)
+            await user.save()
+            res.status(200).send({
+                accessToken:newTokens.accessToken,
+                refreshToken:newTokens.refreshToken
+            })
+        }catch(err){
+            res.status(400).send(err)
+            return
+        }
+    })
+      
 }
 
 type Payload = {
@@ -70,9 +215,13 @@ export const authMiddleware = (req:Request,res:Response,next:NextFunction)=>{
         req.params.userId = (payload as Payload)._id 
         next()
     })
+
+
 }
 
 export default{
     register,
-    login
+    login,
+    logout,
+    refresh
 }
