@@ -15,17 +15,22 @@ const testUser: User = {
 email: "test@user.com",
 password: "testpassword",
 }
+var postid="";
+let accessToken: string;
 
+const testPost = {
+  title: "Test Post",
+  content: "Test Content",
+  owner: "TestOwner",
+};
 beforeAll(async () => {
-  console.log("beforeAll");
   app = await initApp();
   await postModel.deleteMany();
-  await userModel.deleteMany();
-  await request(app).post("/auth/register").send(testUser);
-  const res = await request(app).post("/auth/login").send(testUser);
-  testUser.accessToken = res.body.accessToken;
-  testUser._id = res.body._id;
-  expect(testUser.accessToken).toBeDefined();
+  const response = await request(app).post("/auth/register").send(testUser);
+  const response2 = await request(app).post("/auth/login").send(testUser);
+  expect(response2.statusCode).toBe(200);
+  accessToken = response2.body.token;
+  testPost.owner = response2.body._id;
 });
 
 afterAll((done) => {
@@ -43,17 +48,14 @@ describe("Posts Tests", () => {
   });
 
   test("Test Create Post", async () => {
-    const response = await request(app).post("/posts")
-      .set({ authorization: "JWT " + testUser.accessToken })
-      .send({
-        title: "Test Post",
-        content: "Test Content",
-        owner: "TestOwner",
-      });
+    const response = await request(app).post("/posts").set({
+      authorization: "JWT " + accessToken,
+    }).send(testPost);
     expect(response.statusCode).toBe(201);
-    expect(response.body.title).toBe("Test Post");
-    expect(response.body.content).toBe("Test Content");
+    expect(response.body.title).toBe(testPost.title);
+    expect(response.body.content).toBe(testPost.content);
     postId = response.body._id;
+  
   });
 
   test("Test get post by owner", async () => {
