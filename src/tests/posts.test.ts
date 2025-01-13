@@ -15,7 +15,7 @@ const testUser: User = {
 email: "test@user.com",
 password: "testpassword",
 }
-var postid="";
+
 let accessToken: string;
 
 const testPost = {
@@ -55,7 +55,6 @@ describe("Posts Tests", () => {
     expect(response.body.title).toBe(testPost.title);
     expect(response.body.content).toBe(testPost.content);
     postId = response.body._id;
-  
   });
 
   test("Test get post by owner", async () => {

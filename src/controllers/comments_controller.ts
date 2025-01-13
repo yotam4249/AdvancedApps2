@@ -12,7 +12,7 @@ class CommentsController extends BaseController<iComment>{
         const userId = req.params.userId
         const comment = {
             ...req.body,
-            _id:userId
+            postId:userId
         }
         req.body = comment
         super.create(req,res)            

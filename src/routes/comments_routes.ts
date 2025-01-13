@@ -92,6 +92,8 @@ router.get("/:id", commentsController.getById.bind(commentsController));
  *   post:
  *     summary: Create a new comment
  *     tags: [Comments]
+ *     security:
+ *        - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -102,7 +104,7 @@ router.get("/:id", commentsController.getById.bind(commentsController));
  *               comment:
  *                 type: string
  *               owner:
- *                type: string
+ *                 type: string
  *               postId:
  *                 type: string
  *             required:
@@ -169,6 +171,8 @@ router.put("/:id",authMiddleware,commentsController.update.bind(commentsControll
  *   delete:
  *     summary: Delete all comments
  *     tags: [Comments]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: All comments were deleted
@@ -184,6 +188,8 @@ router.delete("/",authMiddleware,commentsController.deleteAll.bind(commentsContr
  *   delete:
  *     summary: Delete a comment by ID
  *     tags: [Comments]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
