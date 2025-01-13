@@ -15,24 +15,8 @@ const testUser: User = {
   email: "test@user.com",
   password: "testpassword",
 }
+let accessToken: string;
 
-beforeAll(async ()=>{
-    app = await initApp()
-    await commentModel.deleteMany()
-    await userModel.deleteMany();
-    await request(app).post("/auth/register").send(testUser);
-    const res = await request(app).post("/auth/login").send({
-        email:testUser.email,
-        password:testUser.password
-    });
-    testUser.accessToken = res.body.accessToken;
-    testUser._id = res.body._id;
-    expect(testUser.accessToken).toBeDefined();
-})
-
-afterAll(async ()=>{
-    await mongoose.connection.close()
-})
 
 const testComment = {
     comment:"Comment title",
@@ -40,11 +24,28 @@ const testComment = {
     postId:"546a4sdasd"
 }
 
+beforeAll(async ()=>{
+    app = await initApp()
+    await commentModel.deleteMany()
+    const response=await request(app).post("/auth/register").send(testUser);
+    const response2= await request(app).post("/auth/login").send(testUser);
+    expect(response2.statusCode).toBe(200);
+    accessToken = response2.body.token;
+    testComment.owner = response2.body._id; 
+    expect(testUser.accessToken).toBeDefined();
+})
+
+afterAll(async ()=>{
+    await mongoose.connection.close()
+    
+})
+
+
 const invalidComment ={
     comment:"asdasd"
 }
-
 let commentId = ""
+
 
 describe("Comments test ",()=>{
     test("Get all comments 1", async ()=>{
@@ -55,11 +56,11 @@ describe("Comments test ",()=>{
 
     test("Add new comment", async()=>{
         const response = await request(app).post("/comments")
-        .set({ authorization: "JWT " + testUser.accessToken })
+        .set({ authorization: "JWT " + accessToken })
         .send(testComment)
         expect(response.statusCode).toBe(201)
-        expect(response.body.comment).toBe("Comment title")
-        expect(response.body.owner).toBe("Yotam")
+        expect(response.body.comment).toBe(testComment.comment)
+        expect(response.body.owner).toBe(testComment.owner)
         commentId = response.body._id
     })
 

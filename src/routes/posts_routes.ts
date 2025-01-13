@@ -56,6 +56,30 @@ import { authMiddleware } from "../controllers/auth_controller";
  */
 
 router.get("/", postController.getAll.bind(postController));
+/**
+ * @openapi
+ * /posts/{id}:
+ *   get:
+ *     summary: Retrieve a single post by its id
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The id of the post to retrieve
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The post
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
+ *       404:
+ *         description: The post was not found
+ */
+
 
 router.get("/:id", postController.getById.bind(postController));
 /**
@@ -92,9 +116,89 @@ router.get("/:id", postController.getById.bind(postController));
  */
 router.post("/",authMiddleware,postController.create.bind(postController));
 
-router.put("/:id",authMiddleware,postController.update)
+/**
+ * @openapi
+ * /posts/{id}:
+ *   put:
+ *     summary: Update a post by ID
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The post ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Post updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Post not found
+ *       500:
+ *         description: Internal server error
+ */
+
+router.put("/:id", authMiddleware, postController.update.bind(postController));
+
+/**
+ * @openapi
+ * /posts:
+ *   delete:
+ *     summary: Delete all posts
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All posts were deleted
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 
 router.delete("/",authMiddleware,postController.deleteAll.bind(postController));
+
+/**
+ * @openapi
+ * /posts/{id}:
+ *   delete:
+ *     summary: Delete a post by its id
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The id of the post to delete
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The post was deleted
+ *       404:
+ *         description: The post was not found
+ */
 
 router.delete("/:id",authMiddleware,postController.deleteById.bind(postController));
 
