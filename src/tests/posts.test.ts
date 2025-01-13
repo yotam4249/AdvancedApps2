@@ -15,11 +15,7 @@ const testUser: User = {
 email: "test@user.com",
 password: "testpassword",
 }
-<<<<<<< Updated upstream
 
-=======
-let postId="";
->>>>>>> Stashed changes
 let accessToken: string;
 
 const testPost = {
@@ -44,7 +40,7 @@ afterAll((done) => {
   mongoose.connection.close();
   done();
 });
-
+let postId = "";
 describe("Posts Tests", () => {
   test("Posts test get all", async () => {
     const response = await request(app).get("/posts");
