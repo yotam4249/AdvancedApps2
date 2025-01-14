@@ -9,7 +9,7 @@ class CommentsController extends BaseController<iComment>{
     }
 
     async create(req:Request,res:Response){
-        const userId = req.params.userId
+        const userId = req.body.postId
         const comment = {
             ...req.body,
             postId:userId
