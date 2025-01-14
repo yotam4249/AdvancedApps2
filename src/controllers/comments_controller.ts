@@ -17,6 +17,12 @@ class CommentsController extends BaseController<iComment>{
         req.body = comment
         super.create(req,res)            
     };
+
+    async update(req:Request,res:Response){
+        const data = req.body
+        await this.model.findByIdAndUpdate(req.params.id,{comment:data.comment})
+        res.send("Item replaced")
+    }
     
 }
 
