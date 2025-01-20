@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
 
-const generateTokens = (_id:string):{accessToken:string,refreshToken:string}| null =>{
+ export const  generateTokens = (_id:string):{accessToken:string,refreshToken:string}| null =>{
 
     if(!process.env.TOKEN_SECRET)
         {
