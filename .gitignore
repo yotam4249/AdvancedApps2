@@ -6,4 +6,5 @@
 /tsconfig.json
 /eslint.config.mjs
 /jest.config.ts
+/coverage
 /.gitignore
