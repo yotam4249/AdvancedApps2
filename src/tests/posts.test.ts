@@ -46,6 +46,7 @@ describe("Posts Tests", () => {
     const response = await request(app).get("/posts");
     expect(response.statusCode).toBe(200);
     expect(response.body.length).toBe(0);
+    expect(response.statusCode).not.toBe(400)
   });
 
   test("Test Create Post", async () => {
@@ -61,7 +62,7 @@ describe("Posts Tests", () => {
   });
 
   test("Test get post by owner", async () => {
-    const response = await request(app).get("/posts?owner=" + testUser._id);
+    const response = await request(app).get("/posts/?owner=" + testUser._id);
     expect(response.statusCode).toBe(200);
     expect(response.body.length).toBe(1);
     expect(response.body[0].title).toBe("Test Post");
@@ -100,6 +101,16 @@ describe("Posts Tests", () => {
     expect(response2.statusCode).toBe(404);
   });
 
+  test("Delete Post by id",async ()=>{
+    jest.spyOn(postModel, "findByIdAndDelete").mockRejectedValue(new Error("Database error"));
+  const response = await request(app)
+      .delete("/posts/"+postId)
+      .set({ authorization: "JWT " + testUser.accessToken })
+      .send(testPost);
+  expect(response.statusCode).toBe(400);
+  jest.restoreAllMocks();
+})
+
   test("Test Create Post fail", async () => {
     const response = await request(app).post("/posts")
       .set({ authorization: "JWT " + testUser.accessToken })
@@ -108,4 +119,77 @@ describe("Posts Tests", () => {
       });
     expect(response.statusCode).toBe(400);
   });
+
+  test("Update Post by id",async ()=>{
+          const response = await request(app).put("/posts/"+postId)
+          .set({ authorization: "JWT " + testUser.accessToken })
+          .send(testPost)
+          expect(response.statusCode).toBe(200)
+  })
+  test("Update Post by id",async ()=>{
+    jest.spyOn(postModel, "findByIdAndUpdate").mockRejectedValue(new Error("Database error"));
+  const response = await request(app)
+      .put("/posts/"+postId)
+      .set({ authorization: "JWT " + testUser.accessToken })
+      .send(testPost);
+  expect(response.statusCode).toBe(400);
+  jest.restoreAllMocks();
+})
+
+  test("Delete all Posts",async ()=>{
+    const response = await request(app).delete("/posts/")
+    .set({ authorization: "JWT " + testUser.accessToken })
+    .send(testPost)
+    expect(response.statusCode).toBe(200)
+})
+
+test("Delete all Posts - force error", async () => {
+  jest.spyOn(postModel, "deleteMany").mockRejectedValue(new Error("Database error"));
+  const response = await request(app)
+      .delete("/posts/")
+      .set({ authorization: "JWT " + testUser.accessToken })
+      .send(testPost);
+  expect(response.statusCode).toBe(400);
+  jest.restoreAllMocks();
+  });
+
+  test("Force error in getAll and trigger catch block", async () => {
+    // Mock the model's find method to throw an error
+    jest.spyOn(postModel, "find").mockRejectedValue(new Error("Database error"));
+    const response = await request(app)
+      .get("/posts/") // Assuming your endpoint is '/posts'
+      .set({ authorization: "JWT " + testUser.accessToken })
+      .send();
+  
+    // Test that the response status code is 400 (or the error status you want)
+    expect(response.statusCode).toBe(400);
+  });
+
+
+test("Get item by ID - not found", async () => {
+  jest.spyOn(postModel, "findById").mockResolvedValue(null);
+
+  const response = await request(app)
+      .get("/posts/12345")
+      .set({ authorization: "JWT " + testUser.accessToken });
+
+  expect(response.statusCode).toBe(404);
+  expect(response.text).toBe("not found");
+
+  jest.restoreAllMocks();
 });
+
+test("Get item by ID - Force catch block to trigger (400 error)", async () => {
+  const invalidId = "invalid_id"; 
+  jest.spyOn(postModel, 'findById').mockRejectedValue(new Error("Database error"));
+  const response = await request(app)
+    .get(`/posts/${invalidId}`) 
+    .set({ authorization: "JWT " + testUser.accessToken }) 
+    .send();
+  expect(response.statusCode).toBe(400);
+});
+
+  
+});
+
+

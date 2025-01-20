@@ -11,21 +11,6 @@ export class BaseController<T>{
         this.model = model
     }
 
-    async getAll(req:Request,res:Response){
-        const ownerFilter = req.query.owner;
-    try {
-      if (ownerFilter) {
-        const posts = await this.model.find({ owner: ownerFilter });
-        res.status(200).send(posts);
-      } else {
-        const posts = await this.model.find();
-        res.status(200).send(posts);
-      }
-    } catch (err) {
-      console.log(err);
-      res.status(400).send(err);
-    }
-  };
     
     async getById(req: Request, res: Response) {
         try {
@@ -41,16 +26,18 @@ export class BaseController<T>{
     };
 
     async getBySender(req:Request,res:Response){
-        const { owner } = req.query;
-        if(!owner){
-            const data = await this.model.find()
-            res.status(200).send(data)
-        }
-        else
-        {
-            const data = await this.model.find({owner:owner})
-            res.status(200).send(data)
-        }
+        try{
+            const { owner } = req.query;
+            if(!owner){
+                const data = await this.model.find()
+                res.status(200).send(data)
+            }
+            else
+            {
+                const data = await this.model.find({owner:owner})
+                res.status(200).send(data)
+            }
+        }catch(err){res.status(400).send(err)}
 
     };
 
@@ -64,19 +51,28 @@ export class BaseController<T>{
     };
 
     async deleteById(req:Request,res:Response){
+        try{
         await this.model.findByIdAndDelete(req.params.id)
         res.send("item deleted by id")
+        }
+        catch(err){res.status(400).send(err)};
     };
 
     async deleteAll(req:Request,res:Response){
+        try{
         await this.model.deleteMany({})
         res.send("All items deleted from database")
+        }
+        catch(error){res.status(400).send(error)}
     }
 
     async update(req:Request,res:Response){
+        try{
         const data = req.body
         await this.model.findByIdAndUpdate(req.params.id,{title:data.title,content:data.content,owner:data.owner})
         res.send("Item replaced")
+        }
+        catch(error){res.status(400).send(error)}
     }
 }
 

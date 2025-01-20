@@ -55,7 +55,7 @@ import { authMiddleware } from "../controllers/auth_controller";
  *                 $ref: '#/components/schemas/Post'
  */
 
-router.get("/", postController.getAll.bind(postController));
+router.get("/", postController.getBySender.bind(postController));
 /**
  * @openapi
  * /posts/{id}:
@@ -82,6 +82,7 @@ router.get("/", postController.getAll.bind(postController));
 
 
 router.get("/:id", postController.getById.bind(postController));
+
 /**
  * @openapi
  * /posts:
@@ -158,6 +159,7 @@ router.post("/",authMiddleware,postController.create.bind(postController));
  */
 
 router.put("/:id", authMiddleware, postController.update.bind(postController));
+
 
 /**
  * @openapi

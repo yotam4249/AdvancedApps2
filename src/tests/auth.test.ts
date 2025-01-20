@@ -248,7 +248,7 @@ describe("Auth tests ",()=>{
 
     })
 
-    jest.setTimeout(20000)
+    jest.setTimeout(10000)
     test("Test timeout",async ()=>{
         //login
         const response = await request(app).post(baseUrl+"/login").send(testUser)
@@ -263,7 +263,7 @@ describe("Auth tests ",()=>{
         testUser._id = response.body._id
 
         //implement
-        await new Promise(resolve => setTimeout(resolve,12000))
+        await new Promise(resolve => setTimeout(resolve,6000))
 
         const response2 = await request(app).post("/posts")
         .set({authorization: 'JWT ' + testUser.accessToken})
