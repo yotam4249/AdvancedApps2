@@ -4,6 +4,8 @@ import mongoose from "mongoose"
 import postModel from "../models/posts_model"
 import {Express} from "express"
 import userModel, { iUser } from "../models/users_model"
+import * as authController from "../controllers/auth_controller"
+import jwt from "jsonwebtoken"
 
 
 let app:Express;
@@ -19,11 +21,16 @@ afterAll(async ()=>{
     await mongoose.connection.close()
     
 })
+afterEach(() => {
+    jest.restoreAllMocks();
+  });
+  
 
 type User=iUser & {
     accessToken?:string
     refreshToken?:string
 }
+let originalTokenSecret: string;
 
 const baseUrl = "/auth"
 const testUser:User = {
@@ -31,9 +38,20 @@ const testUser:User = {
     password:"testpassword",
 }
 describe("Auth tests ",()=>{
+    beforeEach(() => {
+        // Save the original TOKEN_SECRET
+        originalTokenSecret = process.env.TOKEN_SECRET as string;
+      });
+    
+      afterEach(() => {
+        // Restore the original TOKEN_SECRET
+        process.env.TOKEN_SECRET = originalTokenSecret;
+      });
     test("Auth test register", async ()=>{
         const response = await request(app).post(baseUrl+"/register").send(testUser)
         expect(response.statusCode).toBe(200)
+        expect(response.body.email).toBe(testUser.email);
+        
     })
 
     test("Auth test register", async ()=>{
@@ -59,6 +77,38 @@ describe("Auth tests ",()=>{
         testUser.refreshToken = refreshToken
         testUser._id = response.body._id
     })
+    test("Auth test login bad info", async ()=>{
+        const response = await request(app).post(baseUrl+"/login").send({
+            email:"",
+            password:""
+        })
+        expect(response.statusCode).not.toBe(200)
+    })
+
+    test("Auth test login bad info pass", async ()=>{
+        const response = await request(app).post(baseUrl+"/login").send({
+            email:"test@user.com",
+            password:"123456"
+        })
+        expect(response.statusCode).not.toBe(200)
+    })
+
+
+    test("should return 400 if tokens could not be generated", async () => {
+        await request(app).post(baseUrl + "/register").send(testUser);
+        // Mock the generateTokens function to return null
+        jest.spyOn(authController, "generateTokens").mockImplementation(() => null);
+    
+        const response = await request(app).post(baseUrl + "/login").send(testUser);
+        expect(response.statusCode).toBe(400);
+        expect(response.text).toBe("couldnt generate tokens");
+    
+        // Restore the original implementation
+        jest.restoreAllMocks();
+      });
+  
+      
+
 
 
     test("Auth test me", async ()=>{
@@ -79,6 +129,7 @@ describe("Auth tests ",()=>{
         })
         expect(response2.statusCode).toBe(201)
     })
+    
 
     test("Refresh Token", async ()=>{
         const response = await request(app).post(baseUrl+"/refresh").send({
@@ -99,6 +150,67 @@ describe("Auth tests ",()=>{
         
     })
 
+    test("Logout bad token", async ()=>{
+        const response = await request(app).post(baseUrl+"/logout").send({
+            refreshToken:""
+        })
+        expect(response.statusCode).not.toBe(200)
+    })
+    test("no token secret", async () => {
+        process.env.TOKEN_SECRET = "";
+        const response = await request(app).post(baseUrl + "/logout").send({
+          refreshToken: testUser.refreshToken
+        });
+        expect(response.statusCode).toBe(402);
+      });
+    
+      
+      test("should return 403 if jwt.verify fails", async () => {
+        // Mock jwt.verify to simulate an error
+        jest.spyOn(jwt, "verify").mockImplementation((token, secret, options, callback) => {
+            if (typeof options === 'function') {
+                callback = options;
+            }
+            if (callback) {
+                callback(new Error("no token secret") as jwt.VerifyErrors, undefined);
+            }
+        });
+        const response = await request(app).post(baseUrl + "/logout").send({
+          refreshToken: testUser.refreshToken
+        });
+        expect(response.statusCode).toBe(403);
+        expect(response.text).toBe("no token secret");
+    
+        // Restore the original implementation
+        jest.restoreAllMocks();
+      });
+
+      test("no id", async () => {
+        // Mock userModel.findOne to return null
+        jest.spyOn(userModel, "findOne").mockReturnValue({
+          exec: jest.fn().mockResolvedValue(null)
+        } as any);
+    
+        const response = await request(app).post(baseUrl + "/logout").send({
+          refreshToken: testUser.refreshToken
+        });
+        expect(response.statusCode).toBe(400);
+       
+    
+        // Restore the original implementation
+        jest.restoreAllMocks();
+      });
+
+      test("no id", async () => { 
+        const response = await request(app).post(baseUrl + "/logout").send({
+            refreshToken: testUser.refreshToken
+        });
+        expect(response.statusCode).toBe(406);
+        expect(response.text).toBe("no id");
+    }
+    );
+
+   
     test("Auth test login after logout", async ()=>{
         const response = await request(app).post(baseUrl+"/login").send(testUser)
         expect(response.statusCode).toBe(200)
