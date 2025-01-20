@@ -84,4 +84,10 @@ describe("Comments test ",()=>{
         expect(response.body._id).toBe(commentId)
     })
     
+    test("Update Comment by id",async ()=>{
+        const response = await request(app).put("/comments/"+commentId)
+        .set({ authorization: "JWT " + testUser.accessToken })
+        .send(testComment)
+        expect(response.statusCode).toBe(200)
+    })
 })

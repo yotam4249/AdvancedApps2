@@ -486,25 +486,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -606,38 +606,38 @@ const logout = async(req:Request,res:Response)=&gt;{
     const refreshToken = req.body.refreshToken
     <span class="missing-if-branch" title="if path not taken" >I</span>if(!refreshToken)
     {
-<span class="cstat-no" title="statement not covered" >        res.status(401).send("no token")</span>
+<span class="cstat-no" title="statement not covered" >        res.status(400).send("no token")</span>
 <span class="cstat-no" title="statement not covered" >        return</span>
     }
 &nbsp;
     <span class="missing-if-branch" title="if path not taken" >I</span>if(!process.env.TOKEN_SECRET)
     {
-<span class="cstat-no" title="statement not covered" >        res.status(402).send("no token secret")</span>
+<span class="cstat-no" title="statement not covered" >        res.status(400).send("no token secret")</span>
 <span class="cstat-no" title="statement not covered" >        return</span>
     }
     jwt.verify(refreshToken,process.env.TOKEN_SECRET,async (err:any,data:any)=&gt;{
         <span class="missing-if-branch" title="if path not taken" >I</span>if(err){
-<span class="cstat-no" title="statement not covered" >            res.status(403).send("no token secret")</span>
+<span class="cstat-no" title="statement not covered" >            res.status(400).send("no token secret")</span>
 <span class="cstat-no" title="statement not covered" >            return</span>
         }
         try{
             const payload = data as Payload
             const user = await userModel.findOne({_id:payload._id})
             <span class="missing-if-branch" title="if path not taken" >I</span>if(!user){
-<span class="cstat-no" title="statement not covered" >                res.status(404).send("no id")</span>
+<span class="cstat-no" title="statement not covered" >                res.status(400).send("no id")</span>
 <span class="cstat-no" title="statement not covered" >                return</span>
             }
             <span class="missing-if-branch" title="if path not taken" >I</span>if(!user.refreshTokens){
 <span class="cstat-no" title="statement not covered" >                user.refreshTokens = undefined</span>
 <span class="cstat-no" title="statement not covered" >                await user.save()</span>
-<span class="cstat-no" title="statement not covered" >                res.status(405).send("no id")</span>
+<span class="cstat-no" title="statement not covered" >                res.status(400).send("no id")</span>
 <span class="cstat-no" title="statement not covered" >                return</span>
             }
             <span class="missing-if-branch" title="if path not taken" >I</span>if(!user.refreshTokens.includes(refreshToken))
             {
 <span class="cstat-no" title="statement not covered" >                user.refreshTokens = undefined</span>
 <span class="cstat-no" title="statement not covered" >                await user.save()</span>
-<span class="cstat-no" title="statement not covered" >                res.status(406).send("no id")</span>
+<span class="cstat-no" title="statement not covered" >                res.status(400).send("no id")</span>
 <span class="cstat-no" title="statement not covered" >                return</span>
             }
             user.refreshTokens = user.refreshTokens.filter((token)=&gt; token !== refreshToken)
@@ -748,7 +748,7 @@ export default{
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-01-20T14:02:35.607Z
+                at 2025-01-20T17:19:37.457Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

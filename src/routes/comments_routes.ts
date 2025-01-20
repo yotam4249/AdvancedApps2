@@ -57,7 +57,7 @@ import { authMiddleware } from "../controllers/auth_controller";
  *               items:
  *                 $ref: '#/components/schemas/Comment'
  */
-router.get("/", commentsController.getAll.bind(commentsController));
+router.get("/", commentsController.getBySender.bind(commentsController));
 
 /**
 * @openapi

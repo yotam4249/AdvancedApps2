@@ -89,38 +89,38 @@ const logout = async(req:Request,res:Response)=>{
     const refreshToken = req.body.refreshToken
     if(!refreshToken)
     {
-        res.status(401).send("no token")
+        res.status(400).send("no token")
         return
     }
 
     if(!process.env.TOKEN_SECRET)
     {
-        res.status(402).send("no token secret")
+        res.status(400).send("no token secret")
         return
     }
     jwt.verify(refreshToken,process.env.TOKEN_SECRET,async (err:any,data:any)=>{
         if(err){
-            res.status(403).send("no token secret")
+            res.status(400).send("no token secret")
             return
         }
         try{
             const payload = data as Payload
             const user = await userModel.findOne({_id:payload._id})
             if(!user){
-                res.status(404).send("no id")
+                res.status(400).send("no id")
                 return
             }
             if(!user.refreshTokens){
                 user.refreshTokens = undefined
                 await user.save()
-                res.status(405).send("no id")
+                res.status(400).send("no id")
                 return
             }
             if(!user.refreshTokens.includes(refreshToken))
             {
                 user.refreshTokens = undefined
                 await user.save()
-                res.status(406).send("no id")
+                res.status(400).send("no id")
                 return
             }
             user.refreshTokens = user.refreshTokens.filter((token)=> token !== refreshToken)
