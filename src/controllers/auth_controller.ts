@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
 
-export const generateTokens = (_id:string):{accessToken:string,refreshToken:string}| null =>{
+const generateTokens = (_id:string):{accessToken:string,refreshToken:string}| null =>{
 
     if(!process.env.TOKEN_SECRET)
         {
@@ -69,7 +69,6 @@ const login =  async(req:Request,res:Response)=>{
 
         if(user.refreshTokens == undefined || user.refreshTokens == null )
         {
-           
             user.refreshTokens = [""];
             await user.save()
         }
