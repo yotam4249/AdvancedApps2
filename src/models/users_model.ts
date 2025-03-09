@@ -6,6 +6,7 @@ export interface iUser {
     password : string,
     _id?:string
     refreshTokens?:string[]
+    imgUrl?:string
 }
 
 const userSchema= new moongose.Schema<iUser>({
@@ -15,6 +16,10 @@ const userSchema= new moongose.Schema<iUser>({
     },
     password: {type :String,
         required:true,
+    },
+    //////////aded IMGurl
+    imgUrl:{
+        type:String,
     },
     refreshTokens:{
         type:[String],

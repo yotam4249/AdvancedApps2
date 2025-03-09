@@ -37,6 +37,7 @@ const baseUrl = "/auth"
 const testUser:User = {
     email:"test@user.com",
     password:"testpassword",
+
 }
 describe("Auth tests ",()=>{
     beforeEach(() => {
@@ -89,7 +90,8 @@ describe("Auth tests ",()=>{
     test("Auth test login bad info pass", async ()=>{
         const response = await request(app).post(baseUrl+"/login").send({
             email:"test@user.com",
-            password:"123456"
+            password:"123456",
+        
         })
         expect(response.statusCode).not.toBe(200)
     })
