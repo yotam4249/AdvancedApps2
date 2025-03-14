@@ -10,6 +10,36 @@ import authRoutes from "./routes/auth_routes"
 import swaggerUI from "swagger-ui-express"
 import swaggerJsDoc from "swagger-jsdoc"
 import fileRouter from "./routes/file_routes"
+import cors from "cors";
+
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended:true}));
+app.use((req,res,next)=>{
+    res.setHeader("Access-Control-Allow-Origin","*");
+    res.setHeader("Access-Control-Allow-Methods","*");
+    res.setHeader("Access-Control-Allow-Headers","*");
+    next();
+})
+
+// app.use(cors({
+//     origin: "http://localhost:5173", // Allow frontend access
+//     methods: "GET,POST,PUT,DELETE", // Allow common HTTP methods
+//     allowedHeaders: "Content-Type,Authorization", // Allow necessary headers
+//     credentials: true // Needed if using authentication (JWT, cookies, etc.)
+// }));
+const delay = (req: Request, res: Response, next: NextFunction) => {
+   //  const d = new Promise<void>((r) => setTimeout(() => r(), 2000));
+    // d.then(() => next());
+     next();
+  };
+app.use("/posts",delay,postRoutes);
+app.use("/comments",delay,commentsRoutes);
+app.use("/auth",delay,authRoutes)
+app.use("/file",fileRouter)
+app.use("/public",express.static("public"));
+app.use(express.static("/front"));
+
 
 const options = {
     definition: {
@@ -27,26 +57,6 @@ const options = {
     const specs = swaggerJsDoc(options);
     app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
 
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:true}));
-app.use((req,res,next)=>{
-    res.setHeader("Access-Control-Allow-Origin","*");
-    res.setHeader("Access-Control-Allow-Methods","*");
-    res.setHeader("Access-Control-Allow-Headers","*");
-    next();
-})
-const delay = (req: Request, res: Response, next: NextFunction) => {
-   //  const d = new Promise<void>((r) => setTimeout(() => r(), 2000));
-    // d.then(() => next());
-     next();
-  };
-app.use("/posts",delay,postRoutes);
-app.use("/comments",delay,commentsRoutes);
-app.use("/auth",delay,authRoutes)
-app.use("/file",fileRouter)
-app.use("/public",express.static("public"));
-app.use(express.static("front"));
 
 const initApp = ()=>{
 return new Promise<Express>((resolve,reject)=>{
