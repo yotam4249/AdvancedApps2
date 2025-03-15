@@ -15,19 +15,19 @@ import cors from "cors";
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
-app.use((req,res,next)=>{
+/*app.use((req,res,next)=>{
     res.setHeader("Access-Control-Allow-Origin","*");
     res.setHeader("Access-Control-Allow-Methods","*");
     res.setHeader("Access-Control-Allow-Headers","*");
     next();
-})
+})*/
 
-// app.use(cors({
-//     origin: "http://localhost:5173", // Allow frontend access
-//     methods: "GET,POST,PUT,DELETE", // Allow common HTTP methods
-//     allowedHeaders: "Content-Type,Authorization", // Allow necessary headers
-//     credentials: true // Needed if using authentication (JWT, cookies, etc.)
-// }));
+ app.use(cors({
+     origin: "http://localhost:5173", // Allow frontend access
+     methods: "GET,POST,PUT,DELETE", // Allow common HTTP methods
+     allowedHeaders: "Content-Type,Authorization", // Allow necessary headers
+     credentials: true // Needed if using authentication (JWT, cookies, etc.)
+ }));
 const delay = (req: Request, res: Response, next: NextFunction) => {
    //  const d = new Promise<void>((r) => setTimeout(() => r(), 2000));
     // d.then(() => next());

@@ -36,7 +36,6 @@ const register = async(req:Request,res:Response)=>{
     try{
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(req.body.password,salt)
-    
         if(!req.body.imgUrl)
         {
             req.body.imgUrl = "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png"
