@@ -210,5 +210,53 @@ router.delete("/",authMiddleware,commentsController.deleteAll.bind(commentsContr
 
 router.delete("/:id",authMiddleware,commentsController.deleteById.bind(commentsController));
 
+/**
+ * @openapi
+ * /comments/{id}/like:
+ *   patch:
+ *     summary: Like a comment by ID
+ *     tags: [Comments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The id of the comment to like
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Comment liked successfully
+ *       404:
+ *         description: Comment not found
+ *       500:
+ *         description: Internal server error
+ */
+router.patch("/:id/like", authMiddleware, commentsController.like.bind(commentsController));
+
+/**
+ * @openapi
+ * /comments/{id}/likes:
+ *   get:
+ *     summary: Get the number of likes for a comment
+ *     tags: [Comments]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The id of the comment to get likes
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Number of likes for the comment
+ *       404:
+ *         description: Comment not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/:id/likes", commentsController.getLikes.bind(commentsController));
+
 
 export default router

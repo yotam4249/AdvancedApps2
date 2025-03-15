@@ -4,7 +4,8 @@ import moongose from "mongoose"
 export interface iPost {
     title:string,
     content : string,
-    owner: string
+    owner: string,
+    likes:number
 }
 
 const postSchema= new moongose.Schema<iPost>({
@@ -16,6 +17,9 @@ const postSchema= new moongose.Schema<iPost>({
     },
     owner: {type :String,
         required:true,
+    },
+    likes: {type :Number,
+        default:0
     }
 });
 const postModel=moongose.model<iPost>('Post',postSchema)

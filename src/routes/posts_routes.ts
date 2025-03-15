@@ -204,5 +204,55 @@ router.delete("/",authMiddleware,postController.deleteAll.bind(postController));
 
 router.delete("/:id",authMiddleware,postController.deleteById.bind(postController));
 
+/**
+ * @openapi
+ * /posts/{id}/like:
+ *   patch:
+ *     summary: Like a post by ID
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The id of the post to like
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Post liked successfully
+ *       404:
+ *         description: Post not found
+ *       500:
+ *         description: Internal server error
+ */
+router.patch("/:id/like", authMiddleware, postController.like.bind(postController));
+
+/**
+ * @openapi
+ * /posts/{id}/likes:
+ *   get:
+ *     summary: Get the number of likes for a post
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The id of the post to get likes
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Number of likes for the post
+ *       404:
+ *         description: Post not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/:id/likes", postController.getLikes.bind(postController));
+
+
+
 
 export default router

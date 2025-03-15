@@ -1,6 +1,6 @@
 
 import { Request,Response } from "express";
-import { Model } from "mongoose";
+import mongoose, { Model } from "mongoose";
 
 
 export class BaseController<T>{
@@ -74,6 +74,77 @@ export class BaseController<T>{
         }
         catch(error){res.status(400).send(error)}
     }
+
+    async like(req: Request, res: Response): Promise<void> {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            console.error(`❌ Invalid ObjectId format: ${id}`);
+            res.status(404).send({ message: "Item not found" });
+            return;
+        }
+
+        const item = await this.model.findById(id);
+        if (!item) {
+            console.error(`❌ Post not found: ${id}`);
+            res.status(404).send({ message: "Item not found" });
+            return;
+        }
+
+        if ((item as any).likes === undefined) {
+            console.error(`❌ Likes not supported for this model: ${id}`);
+            res.status(400).send({ message: "Likes not supported for this model" });
+            return;
+        }
+
+        (item as any).likes += 1;
+
+        // 🔥 FIX: Ensure `save()` is awaited before responding
+        await item.save();
+
+        console.log(`✅ Post ${id} liked successfully! Total likes: ${(item as any).likes}`);
+
+        res.send({ message: "Liked successfully!", likes: (item as any).likes });
+    } catch (error) {
+        console.error("❌ Error in like method:", error);
+        res.status(500).send({ message: "Internal server error", error });
+    }
+}
+
+    
+    async getLikes(req: Request, res: Response): Promise<void> {
+        try {
+            const { id } = req.params;
+    
+            if (!mongoose.Types.ObjectId.isValid(id)) {
+                console.error(`Invalid ObjectId format: ${id}`);
+                res.status(404).send({ message: "Item not found" });
+                return;
+            }
+    
+            const item = await this.model.findById(id);
+            if (!item) {
+                console.error(`Post not found: ${id}`);
+                res.status(404).send({ message: "Item not found" });
+                return;
+            }
+    
+            if ((item as any).likes === undefined) {
+                console.error(`Likes not supported for this model: ${id}`);
+                res.status(400).send({ message: "Likes not supported for this model" });
+                return;
+            }
+    
+            res.send({ likes: (item as any).likes });
+        } catch (error) {
+            console.error("❌ Error in getLikes method:", error);
+            res.status(500).send({ message: "Internal server error", error });
+        }
+    }
+    
+    
+    
 }
 
 const createController = <T>(model:Model<T>)=>{

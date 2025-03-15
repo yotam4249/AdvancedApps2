@@ -21,16 +21,27 @@ app.use(bodyParser.urlencoded({extended:true}));
     res.setHeader("Access-Control-Allow-Headers","*");
     next();
 })*/
+app.use((req: Request, res: Response, next: NextFunction): void => {
+    res.setHeader("Access-Control-Allow-Origin", "*"); // ✅ Allow all origins
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS"); // ✅ Explicitly allow PATCH
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
- app.use(cors({
-     origin: "http://localhost:5173", // Allow frontend access
-     methods: "GET,POST,PUT,DELETE", // Allow common HTTP methods
-     allowedHeaders: "Content-Type,Authorization", // Allow necessary headers
-     credentials: true // Needed if using authentication (JWT, cookies, etc.)
- }));
+    if (req.method === "OPTIONS") {
+        res.sendStatus(200); // ✅ Correct way to handle preflight requests
+    } else {
+        next(); // ✅ Ensure `next()` is called for other requests
+    }
+});
+
+//  app.use(cors({
+//      origin: "http://localhost:5173", // Allow frontend access
+//      methods: "GET,POST,PUT,DELETE", // Allow common HTTP methods
+//      allowedHeaders: "Content-Type,Authorization", // Allow necessary headers
+//      credentials: true // Needed if using authentication (JWT, cookies, etc.)
+//  }));
 const delay = (req: Request, res: Response, next: NextFunction) => {
-   //  const d = new Promise<void>((r) => setTimeout(() => r(), 2000));
-    // d.then(() => next());
+     const d = new Promise<void>((r) => setTimeout(() => r(), 2000));
+     d.then(() => next());
      next();
   };
 app.use("/posts",delay,postRoutes);

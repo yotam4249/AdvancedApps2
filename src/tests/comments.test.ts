@@ -90,4 +90,48 @@ describe("Comments test ",()=>{
         .send(testComment)
         expect(response.statusCode).toBe(200)
     })
+
+    test("Like a comment", async () => {
+        const response = await request(app)
+            .patch(`/comments/${commentId}/like`)
+            .set({ authorization: "JWT " + testUser.accessToken });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.likes).toBe(1); // First like
+    });
+
+    test("Like a comment again", async () => {
+        const response = await request(app)
+            .patch(`/comments/${commentId}/like`)
+            .set({ authorization: "JWT " + testUser.accessToken });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.likes).toBe(2); // Second like
+    });
+
+    test("Get comment likes", async () => {
+        const response = await request(app)
+            .get(`/comments/${commentId}/likes`);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.likes).toBe(2); // Should match previous test
+    });
+
+    test("Like a non-existent comment", async () => {
+        const response = await request(app)
+            .patch(`/comments/invalidCommentId/like`)
+            .set({ authorization: "JWT " + testUser.accessToken });
+
+        expect(response.statusCode).toBe(404);
+    });
+
+    test("Get likes for a non-existent comment", async () => {
+        const response = await request(app)
+            .get(`/comments/invalidCommentId/likes`);
+
+        expect(response.statusCode).toBe(404);
+    });
+
+
+
 })
