@@ -1,35 +1,35 @@
 import { NextFunction, Request,Response } from "express"
 import userModel from "../models/users_model"
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+import jwt , {SignOptions} from 'jsonwebtoken'
 
 
  export const  generateTokens = (_id:string):{accessToken:string,refreshToken:string}| null =>{
 
-    if(!process.env.TOKEN_SECRET)
-        {
-            return null
-        }
-    const random = Math.floor(Math.random() * 1000000)
-    const accessToken = jwt.sign({
-            _id: _id,
-            random: random
-        },
-        process.env.TOKEN_SECRET,
-        { expiresIn:process.env.TOKEN_EXPIRES })
+    const JWT_SECRET = process.env.TOKEN_SECRET;
+    const ACCESS_TOKEN_EXPIRES = process.env.TOKEN_EXPIRES ? process.env.TOKEN_EXPIRES.trim() : "15m";
+    const REFRESH_TOKEN_EXPIRES = process.env.REFRESH_TOKEN_EXPIRES ? process.env.REFRESH_TOKEN_EXPIRES.trim() : "7d"; 
 
-    
+    if (!JWT_SECRET) {
+        console.error("Missing TOKEN_SECRET in .env file");
+        return null;
+    }
+    const random = Math.floor(Math.random() * 1000000);
+    const accessTokenOptions: SignOptions = { expiresIn: ACCESS_TOKEN_EXPIRES as SignOptions["expiresIn"] };
+    const refreshTokenOptions: SignOptions = { expiresIn: REFRESH_TOKEN_EXPIRES as SignOptions["expiresIn"] };
+    const accessToken = jwt.sign(
+        { _id, random }, 
+        JWT_SECRET, 
+        accessTokenOptions
+    );
+
     const refreshToken = jwt.sign(
-        {
-            _id:_id , 
-            random: random
-        },
-        process.env.TOKEN_SECRET,
-        { expiresIn:process.env.REFRESH_TOKEN_EXPIRES })
-        return {
-            accessToken,
-            refreshToken
-        }
+        { _id, random }, 
+        JWT_SECRET, 
+        refreshTokenOptions
+    );
+
+    return { accessToken, refreshToken };
 }
 
 const register = async(req:Request,res:Response)=>{
