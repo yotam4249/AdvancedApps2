@@ -16,23 +16,23 @@ import path from "path";
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
-/*app.use((req,res,next)=>{
+app.use((req,res,next)=>{
     res.setHeader("Access-Control-Allow-Origin","*");
     res.setHeader("Access-Control-Allow-Methods","*");
     res.setHeader("Access-Control-Allow-Headers","*");
     next();
-})*/
-app.use((req: Request, res: Response, next: NextFunction): void => {
-    res.setHeader("Access-Control-Allow-Origin", "*"); // ✅ Allow all origins
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS"); // ✅ Explicitly allow PATCH
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+})
+// app.use((req: Request, res: Response, next: NextFunction): void => {
+//     res.setHeader("Access-Control-Allow-Origin", "*"); // ✅ Allow all origins
+//     res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS"); // ✅ Explicitly allow PATCH
+//     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-    if (req.method === "OPTIONS") {
-        res.sendStatus(200); // ✅ Correct way to handle preflight requests
-    } else {
-        next(); // ✅ Ensure `next()` is called for other requests
-    }
-});
+//     if (req.method === "OPTIONS") {
+//         res.sendStatus(200); // ✅ Correct way to handle preflight requests
+//     } else {
+//         next(); // ✅ Ensure `next()` is called for other requests
+//     }
+// });
 app.use(cors());
 const storagePath = "C:\\Users\\eliav\\myapp1\\Task2EY\\AdvancedApps2\\storage"; 
 
@@ -43,8 +43,8 @@ const storagePath = "C:\\Users\\eliav\\myapp1\\Task2EY\\AdvancedApps2\\storage";
 //      credentials: true // Needed if using authentication (JWT, cookies, etc.)
 //  }));
 const delay = (req: Request, res: Response, next: NextFunction) => {
-     const d = new Promise<void>((r) => setTimeout(() => r(), 2000));
-     d.then(() => next());
+    // const d = new Promise<void>((r) => setTimeout(() => r(), 2000));
+    // d.then(() => next());
      next();
   };
 app.use("/posts",delay,postRoutes);

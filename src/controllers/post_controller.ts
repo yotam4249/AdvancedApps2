@@ -12,7 +12,8 @@ class PostsController extends BaseController<iPost>{
         const userId = req.params.userId
         const post = {
             ...req.body,
-            owner:userId
+            owner:userId,
+            imageUrl: req.body.imageUrl || null,
         }
         req.body = post
         super.create(req,res)            

@@ -23,7 +23,6 @@ const testPost = {
   content: "Test Content",
   owner: "TestOwner",
   likes: 0,
-  imageUrl: "https://example.com/test-image.jpg",
 };
 beforeAll(async () => {
   app = await initApp();
@@ -122,36 +121,21 @@ describe("Posts Tests", () => {
     expect(response.statusCode).toBe(400);
   });
 
-//   test("Update Post by id",async ()=>{
-//           const response = await request(app).put("/posts/"+postId)
-//           .set({ authorization: "JWT " + testUser.accessToken })
-//           .send(testPost)
-//           expect(response.statusCode).toBe(200)
-//   })
-//   test("Update Post by id",async ()=>{
-//     jest.spyOn(postModel, "findByIdAndUpdate").mockRejectedValue(new Error("Database error"));
-//   const response = await request(app)
-//       .put("/posts/"+postId)
-//       .set({ authorization: "JWT " + testUser.accessToken })
-//       .send(testPost);
-//   expect(response.statusCode).toBe(400);
-//   jest.restoreAllMocks();
-// })
-
-test("Test Update Post with Image", async () => {
-  const updatedPost = {
-      title: "Updated Title",
-      content: "Updated Content",
-      imageUrl: "https://example.com/new-image.jpg",
-  };
+  test("Update Post by id",async ()=>{
+          const response = await request(app).put("/posts/"+postId)
+          .set({ authorization: "JWT " + testUser.accessToken })
+          .send(testPost)
+          expect(response.statusCode).toBe(200)
+  })
+  test("Update Post by id",async ()=>{
+    jest.spyOn(postModel, "findByIdAndUpdate").mockRejectedValue(new Error("Database error"));
   const response = await request(app)
-      .put(`/posts/${postId}`)
+      .put("/posts/"+postId)
       .set({ authorization: "JWT " + testUser.accessToken })
-      .send(updatedPost);
-
-  expect(response.statusCode).toBe(200);
-  expect(response.body.imageUrl).toBe(updatedPost.imageUrl); // Ensures imageUrl is updated
-});
+      .send(testPost);
+  expect(response.statusCode).toBe(400);
+  jest.restoreAllMocks();
+})
 
   test("Delete all Posts",async ()=>{
     const response = await request(app).delete("/posts/")
@@ -265,5 +249,4 @@ test("Get likes for a post with an invalid ID", async () => {
 
   
 });
-
 

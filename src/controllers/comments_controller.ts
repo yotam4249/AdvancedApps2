@@ -18,24 +18,12 @@ class CommentsController extends BaseController<iComment>{
         super.create(req,res)            
     };
 
-    async update(req: Request, res: Response): Promise<Response<any> | undefined> {
-        try {
-            const data = req.body;
-            const updatedComment = await this.model.findByIdAndUpdate(
-                req.params.id,
-                { content: data.content, owner: data.owner },
-                { new: true }
-            );
-    
-            if (!updatedComment) {
-                return res.status(404).json({ message: "Comment not found" });
-            }
-    
-            return res.status(200).json(updatedComment);
-        } catch (error) {
-            return res.status(400).json(error);
-        }
+    async update(req:Request,res:Response){
+        const data = req.body
+        await this.model.findByIdAndUpdate(req.params.id,{comment:data.comment})
+        res.send("Item replaced")
     }
-}    
+    
+}
 
 export default new CommentsController();

@@ -66,34 +66,13 @@ export class BaseController<T>{
         catch(error){res.status(400).send(error)}
     }
 
-    // async update(req:Request,res:Response){
-    //     try{
-    //     const data = req.body
-    //     await this.model.findByIdAndUpdate(req.params.id,{title:data.title,content:data.content,owner:data.owner})
-    //     res.send("Item replaced")
-    //     }
-    //     catch(error){res.status(400).send(error)}
-    // }
-    async update(req: Request, res: Response) {
-        try {
-            const data = req.body;
-            const updateFields: Partial<T> = {};
-    
-            // Copy only existing fields to avoid issues with comments
-            if ("title" in data) updateFields["title"] = data.title;
-            if ("content" in data) updateFields["content"] = data.content;
-            if ("owner" in data) updateFields["owner"] = data.owner;
-            if ("imageUrl" in data) updateFields["imageUrl"] = data.imageUrl; // Only applies if the model supports it
-    
-            const updatedItem = await this.model.findByIdAndUpdate(req.params.id, updateFields, { new: true });
-    
-            if (!updatedItem) {
-                return res.status(404).send({ message: "Item not found" });
-            }
-            res.status(200).json(updatedItem);
-        } catch (error) {
-            res.status(400).send(error);
+    async update(req:Request,res:Response){
+        try{
+        const data = req.body
+        await this.model.findByIdAndUpdate(req.params.id,{title:data.title,content:data.content,owner:data.owner})
+        res.send("Item replaced")
         }
+        catch(error){res.status(400).send(error)}
     }
 
     async like(req: Request, res: Response): Promise<void> {
