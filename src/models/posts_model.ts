@@ -5,7 +5,8 @@ export interface iPost {
     title:string,
     content : string,
     owner: string,
-    likes:number
+    likes:number,
+    imgUrlPost?:string
 }
 
 const postSchema= new moongose.Schema<iPost>({
@@ -20,6 +21,9 @@ const postSchema= new moongose.Schema<iPost>({
     },
     likes: {type :Number,
         default:0
+    },
+    imgUrlPost:{
+        type:String,
     }
 });
 const postModel=moongose.model<iPost>('Post',postSchema)

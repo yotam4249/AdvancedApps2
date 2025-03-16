@@ -36,6 +36,8 @@ import { authMiddleware } from "../controllers/auth_controller";
  *         title: My first post
  *         content: This is the content of my first post
  *         owner: John Doe
+ *         likes: 0
+ *         imgUrlPost: 1741989058727.jpeg
  */
 
 /**

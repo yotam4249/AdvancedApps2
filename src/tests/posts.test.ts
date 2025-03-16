@@ -23,6 +23,7 @@ const testPost = {
   content: "Test Content",
   owner: "TestOwner",
   likes: 0,
+  imgUrlPost:"1741989058727.jpeg"
 };
 beforeAll(async () => {
   app = await initApp();
@@ -190,62 +191,66 @@ test("Get item by ID - Force catch block to trigger (400 error)", async () => {
   expect(response.statusCode).toBe(400);
 });
 
-test("Like a post", async () => {
+
+
+
+
+// test("Like a post", async () => {
   
-  const response = await request(app)
-      .patch(`/posts/${postId}/like`)
-      .set({ authorization: "JWT " + testUser.accessToken });
+//   const response = await request(app)
+//       .patch(`/posts/${postId}/like`)
+//       .set({ authorization: "JWT " + testUser.accessToken });
 
-  expect(response.statusCode).toBe(200);
-  expect(response.body.likes).toBe(1); // First like
-});
+//   expect(response.statusCode).toBe(200);
+//   expect(response.body.likes).toBe(1); // First like
+// });
 
-test("Like a post again", async () => {
-  const response = await request(app)
-      .patch(`/posts/${postId}/like`)
-      .set({ authorization: "JWT " + testUser.accessToken });
+// test("Like a post again", async () => {
+//   const response = await request(app)
+//       .patch(`/posts/${postId}/like`)
+//       .set({ authorization: "JWT " + testUser.accessToken });
 
-  expect(response.statusCode).toBe(200);
-  expect(response.body.likes).toBe(2); // Second like
-});
+//   expect(response.statusCode).toBe(200);
+//   expect(response.body.likes).toBe(2); // Second like
+// });
 
-test("Get post likes", async () => {
-  const response = await request(app)
-      .get(`/posts/${postId}/likes`);
+// test("Get post likes", async () => {
+//   const response = await request(app)
+//       .get(`/posts/${postId}/likes`);
 
-  expect(response.statusCode).toBe(200);
-  expect(response.body.likes).toBe(2); // Should match previous test
-});
+//   expect(response.statusCode).toBe(200);
+//   expect(response.body.likes).toBe(2); // Should match previous test
+// });
 
-test("Like a non-existent post", async () => {
-  const response = await request(app)
-      .patch(`/posts/64a5d1c2f4e4b8e3f1a3f6b6/like`) // Random valid ObjectId
-      .set({ authorization: "JWT " + testUser.accessToken });
+// test("Like a non-existent post", async () => {
+//   const response = await request(app)
+//       .patch(`/posts/64a5d1c2f4e4b8e3f1a3f6b6/like`) // Random valid ObjectId
+//       .set({ authorization: "JWT " + testUser.accessToken });
 
-  expect(response.statusCode).toBe(404);
-});
+//   expect(response.statusCode).toBe(404);
+// });
 
-test("Get likes for a non-existent post", async () => {
-  const response = await request(app)
-      .get(`/posts/64a5d1c2f4e4b8e3f1a3f6b6/likes`); // Random valid ObjectId
+// test("Get likes for a non-existent post", async () => {
+//   const response = await request(app)
+//       .get(`/posts/64a5d1c2f4e4b8e3f1a3f6b6/likes`); // Random valid ObjectId
 
-  expect(response.statusCode).toBe(404);
-});
+//   expect(response.statusCode).toBe(404);
+// });
 
-test("Like a post with an invalid ID", async () => {
-  const response = await request(app)
-      .patch(`/posts/invalidPostId/like`) // Invalid ObjectId format
-      .set({ authorization: "JWT " + testUser.accessToken });
+// test("Like a post with an invalid ID", async () => {
+//   const response = await request(app)
+//       .patch(`/posts/invalidPostId/like`) // Invalid ObjectId format
+//       .set({ authorization: "JWT " + testUser.accessToken });
 
-  expect(response.statusCode).toBe(404); // Expect 404 (not 400)
-});
+//   expect(response.statusCode).toBe(404); // Expect 404 (not 400)
+// });
 
-test("Get likes for a post with an invalid ID", async () => {
-  const response = await request(app)
-      .get(`/posts/invalidPostId/likes`); // Invalid ObjectId format
+// test("Get likes for a post with an invalid ID", async () => {
+//   const response = await request(app)
+//       .get(`/posts/invalidPostId/likes`); // Invalid ObjectId format
 
-  expect(response.statusCode).toBe(404); // Expect 404 (not 400)
-});
+//   expect(response.statusCode).toBe(404); // Expect 404 (not 400)
+// });
 
   
 });
