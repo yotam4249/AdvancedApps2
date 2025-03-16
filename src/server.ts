@@ -11,6 +11,7 @@ import swaggerUI from "swagger-ui-express"
 import swaggerJsDoc from "swagger-jsdoc"
 import fileRouter from "./routes/file_routes"
 import cors from "cors";
+import path from "path";
 
 
 app.use(bodyParser.json());
@@ -32,6 +33,8 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
         next(); // ✅ Ensure `next()` is called for other requests
     }
 });
+app.use(cors());
+const storagePath = "C:\\Users\\eliav\\myapp1\\Task2EY\\AdvancedApps2\\storage"; 
 
 //  app.use(cors({
 //      origin: "http://localhost:5173", // Allow frontend access
@@ -50,6 +53,7 @@ app.use("/auth",delay,authRoutes)
 app.use("/file",fileRouter)
 app.use("/public",express.static("public"));
 app.use(express.static("/front"));
+app.use('/storage', express.static(storagePath));
 
 
 const options = {
