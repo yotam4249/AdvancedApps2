@@ -2,6 +2,9 @@ import { NextFunction, Request,Response } from "express"
 import userModel from "../models/users_model"
 import bcrypt from 'bcrypt'
 import jwt , {SignOptions} from 'jsonwebtoken'
+import { OAuth2Client } from 'google-auth-library'
+
+const client = new OAuth2Client();
 
 
  export const  generateTokens = (_id:string):{accessToken:string,refreshToken:string}| null =>{
@@ -89,6 +92,35 @@ const login =  async(req:Request,res:Response)=>{
         res.status(400).send(err)
     }
 }
+
+const googleSignIn = async (req: Request, res: Response)=> {
+    console.log(req.body)
+    const credential = req.body.credential;
+    try {
+        const ticket = await client.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        const email = payload?.email
+        if(email != null){
+            let user = await userModel.findOne({'email':email})
+            if(user == null){
+                user = await userModel.create(
+                    {
+                    'email': email,
+                    'password':'',
+                    'imgUrl':payload?.picture
+                })
+            }
+            const tokens = generateTokens(user.id)
+             res.status(200).send({email:user.email,id:user._id,imgUrl:user.imgUrl ,...tokens})
+        }
+         res.status(400).send("error missing email or password");
+    } catch (err) {
+         res.status(400).send("error missing email or password");
+    }
+ }
 
 const logout = async(req:Request,res:Response)=>{
     const refreshToken = req.body.refreshToken
@@ -225,6 +257,7 @@ export const authMiddleware = (req:Request,res:Response,next:NextFunction)=>{
 }
 
 export default{
+    googleSignIn,
     register,
     login,
     logout,

@@ -20,6 +20,11 @@ app.use((req,res,next)=>{
     res.setHeader("Access-Control-Allow-Origin","*");
     res.setHeader("Access-Control-Allow-Methods","*");
     res.setHeader("Access-Control-Allow-Headers","*");
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+    res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+    res.setHeader("Content-Security-Policy",
+        "frame-ancestors 'self' https://accounts.google.com");
+    credentials: true;
     next();
 })
 // app.use((req: Request, res: Response, next: NextFunction): void => {
@@ -47,6 +52,11 @@ const delay = (req: Request, res: Response, next: NextFunction) => {
     // d.then(() => next());
      next();
   };
+//   app.use((req, res, next) => {
+//     res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+//     res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+//     next();
+// });
 app.use("/posts",delay,postRoutes);
 app.use("/comments",delay,commentsRoutes);
 app.use("/auth",delay,authRoutes)

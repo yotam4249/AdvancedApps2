@@ -65,7 +65,7 @@ import authController from "../controllers/auth_controller"
 */
 
 router.post("/register", authController.register);
-
+router.post("/google", authController.googleSignIn);
 
 /**
 * @swagger
