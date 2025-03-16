@@ -1,16 +1,16 @@
 import express from "express";
-const router= express.Router();
-import postController from "../controllers/post_controller" 
+const router = express.Router();
+import postController from "../controllers/post_controller";
 import { authMiddleware } from "../controllers/auth_controller";
-
+import multer = require("multer");
+import { Request, Response, NextFunction } from "express";
 
 /**
-* @swagger
-* tags:
-*   name: Posts
-*   description: The Posts API
-*/
-
+ * @swagger
+ * tags:
+ *   name: Posts
+ *   description: The Posts API
+ */
 
 /**
  * @openapi
@@ -30,12 +30,16 @@ import { authMiddleware } from "../controllers/auth_controller";
  *           description: The content of the post
  *         owner:
  *           type: string
- *           description: The author of the post 
+ *           description: The author of the post
+ *         imageUrl:
+ *           type: string
+ *           description: The URL of the post image (optional)
  *       example:
  *         id: d5fE_asz
  *         title: My first post
  *         content: This is the content of my first post
  *         owner: John Doe
+ *         imageUrl: "https://example.com/image.jpg"
  */
 
 /**
@@ -54,8 +58,8 @@ import { authMiddleware } from "../controllers/auth_controller";
  *               items:
  *                 $ref: '#/components/schemas/Post'
  */
-
 router.get("/", postController.getBySender.bind(postController));
+
 /**
  * @openapi
  * /posts/{id}:
@@ -79,8 +83,6 @@ router.get("/", postController.getBySender.bind(postController));
  *       404:
  *         description: The post was not found
  */
-
-
 router.get("/:id", postController.getById.bind(postController));
 
 /**
@@ -102,6 +104,9 @@ router.get("/:id", postController.getById.bind(postController));
  *                 type: string
  *               content:
  *                 type: string
+ *               imageUrl:
+ *                 type: string
+ *                 description: The URL of the post image (optional)
  *             required:
  *               - title
  *               - content
@@ -115,7 +120,13 @@ router.get("/:id", postController.getById.bind(postController));
  *       400:
  *         description: Bad Request
  */
-router.post("/",authMiddleware,postController.create.bind(postController));
+router.post("/", authMiddleware, (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (req.body.imageUrl && typeof req.body.imageUrl !== "string") {
+        res.status(400).json({ message: "Invalid imageUrl format" });
+        return; // Ensure function exits
+    }
+    postController.create(req, res);
+});
 
 /**
  * @openapi
@@ -143,6 +154,9 @@ router.post("/",authMiddleware,postController.create.bind(postController));
  *                 type: string
  *               content:
  *                 type: string
+ *               imageUrl:
+ *                 type: string
+ *                 description: The URL of the post image (optional)
  *     responses:
  *       200:
  *         description: Post updated successfully
@@ -157,9 +171,13 @@ router.post("/",authMiddleware,postController.create.bind(postController));
  *       500:
  *         description: Internal server error
  */
-
-router.put("/:id", authMiddleware, postController.update.bind(postController));
-
+router.put("/:id", authMiddleware, (req: Request, res: Response, next: NextFunction) => {
+    if (req.body.imageUrl && typeof req.body.imageUrl !== "string") {
+        res.status(400).json({ message: "Invalid imageUrl format" });
+        return; // Ensures function does not continue execution
+    }
+    postController.update(req, res);
+});
 
 /**
  * @openapi
@@ -177,8 +195,7 @@ router.put("/:id", authMiddleware, postController.update.bind(postController));
  *       500:
  *         description: Internal server error
  */
-
-router.delete("/",authMiddleware,postController.deleteAll.bind(postController));
+router.delete("/", authMiddleware, postController.deleteAll.bind(postController));
 
 /**
  * @openapi
@@ -201,8 +218,7 @@ router.delete("/",authMiddleware,postController.deleteAll.bind(postController));
  *       404:
  *         description: The post was not found
  */
-
-router.delete("/:id",authMiddleware,postController.deleteById.bind(postController));
+router.delete("/:id", authMiddleware, postController.deleteById.bind(postController));
 
 /**
  * @openapi
@@ -252,7 +268,5 @@ router.patch("/:id/like", authMiddleware, postController.like.bind(postControlle
  */
 router.get("/:id/likes", postController.getLikes.bind(postController));
 
+export default router;
 
-
-
-export default router

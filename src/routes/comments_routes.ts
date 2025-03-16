@@ -163,7 +163,14 @@ router.post("/",authMiddleware,commentsController.create.bind(commentsController
  *         description: Internal server error
  */
 
-router.put("/:id",authMiddleware,commentsController.update.bind(commentsController))
+router.put("/:id", authMiddleware, async (req, res, next) => {
+    try {
+        await commentsController.update(req, res);
+    } catch (error) {
+        next(error);
+    }
+});
+
 
 /**
  * @openapi
