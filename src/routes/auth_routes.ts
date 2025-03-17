@@ -144,6 +144,4 @@ router.post("/refresh", authController.refresh);
 
 router.get("/users/:id", authController.getUserById);
 
-router.post("/users/", authController.getByUsername);
-
 export default router
