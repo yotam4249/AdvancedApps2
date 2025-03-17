@@ -27,9 +27,13 @@ import authController from "../controllers/auth_controller"
 *           User:
 *               type: object
 *               required:
+*                   - username
 *                   - email
 *                   - password
 *               properties:
+*                   username:
+*                       type: string
+*                       description: The user username
 *                   email:
 *                       type: string
 *                       description: The user email
@@ -37,6 +41,7 @@ import authController from "../controllers/auth_controller"
 *                       type: string
 *                       description: The user password
 *               example:
+*                   username: 'testusername'
 *                   email: 'test@user.com'
 *                   password: 'testpassword'
 */

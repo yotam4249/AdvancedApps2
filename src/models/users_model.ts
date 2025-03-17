@@ -2,6 +2,7 @@
 import moongose from "mongoose"
 
 export interface iUser {
+    username:string,
     email:string,
     password : string,
     _id?:string
@@ -23,6 +24,10 @@ const userSchema= new moongose.Schema<iUser>({
     },
     imgUrl:{
         type:String,
+    },
+    username:{
+        type:String,
+        required:true
     }
 });
 const userModel=moongose.model<iUser>('Users',userSchema)

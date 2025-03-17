@@ -35,6 +35,7 @@ let originalTokenSecret: string;
 
 const baseUrl = "/auth"
 const testUser:User = {
+    username:"testusername",
     email:"test@user.com",
     password:"testpassword",
 

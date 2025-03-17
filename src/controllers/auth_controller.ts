@@ -45,6 +45,7 @@ const register = async(req:Request,res:Response)=>{
             req.body.imgUrl = "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png"
         }
         const user = await userModel.create({
+            username:req.body.username,
             email:req.body.email,
             password:hashedPassword,
             imgUrl:req.body.imgUrl
@@ -73,21 +74,32 @@ const googleRegister = async(req:Request,res:Response) =>{
         else{
             let user = await userModel.findOne({email:payload.email})
             if(user == null){
+                let username = payload.name; 
+                let existingUser = await userModel.findOne({ username });
+                let counter = 1;
+                while (existingUser) {
+                    username = `${payload.name}${counter}`;
+                    existingUser = await userModel.findOne({ username });
+                    counter++;
+                }
                 user = await userModel.create({
+                    username:payload.name,
                     email: payload.email,
                     password: "", 
                     imgUrl: payload.picture || "",
                 });
                 const tokens = generateTokens(user._id.toString());
                 res.json({
-                email: user.email,
-                id: user._id,
-                imgUrl: "",    
-                ...tokens,
-            });
+                    username:user.username,
+                    email: user.email,
+                    id: user._id,
+                    imgUrl: "",    
+                    ...tokens,
+                });
             }
             else{
                 res.json({
+                    username:user.username,
                     flag:-999,
                     email: user.email,
                     id: user._id,
