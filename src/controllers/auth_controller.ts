@@ -44,17 +44,36 @@ const register = async(req:Request,res:Response)=>{
         {
             req.body.imgUrl = "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png"
         }
-        const user = await userModel.create({
-            username:req.body.username,
-            email:req.body.email,
-            password:hashedPassword,
-            imgUrl:req.body.imgUrl
-        })
-        res.status(200).send(user)
+        const existingUser = await userModel.findOne({username:req.body.username})
+        if(existingUser == undefined || existingUser == null){
+            const user = await userModel.create({
+                username:req.body.username,
+                email:req.body.email,
+                password:hashedPassword,
+                imgUrl:req.body.imgUrl
+            })
+            res.status(200).send(user)
+        }
+        else{
+            res.status(400).send();
+        }
     }catch(err){
         res.status(400).send(err)
     }
 }
+
+const getByUsername = async(req: Request, res: Response) =>{
+    try {
+        const item = await userModel.findOne({username:req.body.username});
+        if (item != null) {
+            res.status(200).send(item);
+        } else {
+            res.status(200).send(-999);
+        }
+    } catch (error) {
+        res.status(400).send(error);
+    }
+};
 
 const googleRegister = async(req:Request,res:Response) =>{
     try{
@@ -301,6 +320,7 @@ export const authMiddleware = (req:Request,res:Response,next:NextFunction)=>{
 }
 
 export default{
+    getByUsername,
     googleRegister,
     register,
     login,
