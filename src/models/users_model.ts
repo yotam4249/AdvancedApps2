@@ -15,13 +15,12 @@ const userSchema= new moongose.Schema<iUser>({
         unique:true
     },
     password: {type :String,
-        required:true,
+        default:""
     },
     refreshTokens:{
         type:[String],
         default:[]
     },
-    //////////aded IMGurl
     imgUrl:{
         type:String,
     }

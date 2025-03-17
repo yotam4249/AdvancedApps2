@@ -38,7 +38,7 @@ app.use((req,res,next)=>{
 //         next(); // ✅ Ensure `next()` is called for other requests
 //     }
 // });
-app.use(cors());
+//app.use(cors({}));
 const storagePath = "C:\\Users\\eliav\\myapp1\\Task2EY\\AdvancedApps2\\storage"; 
 
 //  app.use(cors({

@@ -54,6 +54,47 @@ const register = async(req:Request,res:Response)=>{
     }
 }
 
+const googleRegister = async(req:Request,res:Response) =>{
+    try{
+        console.log('3')
+        const {credential} = req.body
+        if(!credential){
+             res.status(400).send('no credential')
+        }
+        const ticket = await client.verifyIdToken({
+            idToken:credential,
+            audience:process.env.GOOGLE_CLIENT_ID
+        })
+        const payload =  ticket.getPayload()
+        if(!payload?.email){
+            res.status(400).send('Missing email from google')
+        }
+        else{
+            let user = await userModel.findOne({email:payload.email})
+            if(user == null){
+                user = await userModel.create({
+                    email: payload.email,
+                    password: "", 
+                    imgUrl: payload.picture || "",
+                });
+            }
+            else{
+                return
+            }
+            const tokens = generateTokens(user._id.toString());
+            res.json({
+                email: user.email,
+                id: user._id,
+                imgUrl: "",    
+                ...tokens,
+            });
+        }
+    }catch(err){
+        console.error("Google Sign-In Error:", err);
+        res.status(400).json({ message: "Authentication failed" });
+    }
+}
+
 const login =  async(req:Request,res:Response)=>{
     try{
         const user = await userModel.findOne({email:req.body.email})
@@ -93,34 +134,6 @@ const login =  async(req:Request,res:Response)=>{
     }
 }
 
-const googleSignIn = async (req: Request, res: Response)=> {
-    console.log(req.body)
-    const credential = req.body.credential;
-    try {
-        const ticket = await client.verifyIdToken({
-            idToken: credential,
-            audience: process.env.GOOGLE_CLIENT_ID,
-        });
-        const payload = ticket.getPayload();
-        const email = payload?.email
-        if(email != null){
-            let user = await userModel.findOne({'email':email})
-            if(user == null){
-                user = await userModel.create(
-                    {
-                    'email': email,
-                    'password':'',
-                    'imgUrl':payload?.picture
-                })
-            }
-            const tokens = generateTokens(user.id)
-             res.status(200).send({email:user.email,id:user._id,imgUrl:user.imgUrl ,...tokens})
-        }
-         res.status(400).send("error missing email or password");
-    } catch (err) {
-         res.status(400).send("error missing email or password");
-    }
- }
 
 const logout = async(req:Request,res:Response)=>{
     const refreshToken = req.body.refreshToken
@@ -257,7 +270,7 @@ export const authMiddleware = (req:Request,res:Response,next:NextFunction)=>{
 }
 
 export default{
-    googleSignIn,
+    googleRegister,
     register,
     login,
     logout,
