@@ -78,17 +78,23 @@ const googleRegister = async(req:Request,res:Response) =>{
                     password: "", 
                     imgUrl: payload.picture || "",
                 });
-            }
-            else{
-                return
-            }
-            const tokens = generateTokens(user._id.toString());
-            res.json({
+                const tokens = generateTokens(user._id.toString());
+                res.json({
                 email: user.email,
                 id: user._id,
                 imgUrl: "",    
                 ...tokens,
             });
+            }
+            else{
+                res.json({
+                    flag:-999,
+                    email: user.email,
+                    id: user._id,
+                    imgUrl: "", 
+                })
+            }
+            
         }
     }catch(err){
         console.error("Google Sign-In Error:", err);
