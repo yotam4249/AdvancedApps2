@@ -3,6 +3,7 @@ import userModel from "../models/users_model"
 import bcrypt from 'bcrypt'
 import jwt , {SignOptions} from 'jsonwebtoken'
 import { OAuth2Client } from 'google-auth-library'
+import { get } from "mongoose"
 
 const client = new OAuth2Client();
 
@@ -237,7 +238,19 @@ const refresh = async(req:Request,res:Response)=>{
             return
         }
     })
-      
+}
+
+const getUserById = async (req: Request, res: Response) => {
+    try {
+        const user = await userModel.findById(req.params.id);
+        if (!user) {
+            res.status(404).send("User not found");
+            return;
+        }
+        res.status(200).json(user);
+    } catch (err) {
+        res.status(500).send("Internal server error");
+    }
 }
 
 type Payload = {
@@ -274,5 +287,6 @@ export default{
     register,
     login,
     logout,
+    getUserById,
     refresh
 }

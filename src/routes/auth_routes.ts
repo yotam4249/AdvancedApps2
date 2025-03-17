@@ -136,4 +136,7 @@ router.post("/logout", authController.logout);
 */
 
 router.post("/refresh", authController.refresh);
+
+router.get("/users/:id", authController.getUserById);
+
 export default router
