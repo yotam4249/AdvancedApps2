@@ -380,11 +380,13 @@ export const authMiddleware = (req:Request,res:Response,next:NextFunction)=>{
 const updateUser = async (req:Request,res:Response)=>{
     try{
         const data = req.body.user
-        await userModel.findByIdAndUpdate(req.params.id,{email:data.email,
-            password:data.password,
-            username:data.username
-        })
-        res.send(200)
+        const response = await userModel.findByIdAndUpdate(data._id,
+            {
+                email:data.email,
+                password:data.password,
+                username:data.username
+            })
+        res.status(200).send()
     }
     catch (err) {
     res.status(400).send("Internal server error");
