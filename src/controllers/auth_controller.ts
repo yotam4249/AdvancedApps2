@@ -209,7 +209,7 @@ const googleLogIn=async(req:Request,res:Response) =>{
                     id: "",
                     imgUrl: "", 
                     tokens:""
-                })
+            })
             }
         }
     }catch(err){
@@ -335,6 +335,19 @@ const getUserById = async (req: Request, res: Response) => {
     }
 }
 
+const getUserByUsername = async (req: Request, res: Response) => {
+    try {
+        const user = await userModel.find({username:req.query.username});
+        if (!user) {
+            res.status(404).send("User not found");
+            return;
+        }
+        res.status(200).json(user);
+    } catch (err) {
+        res.status(500).send("Internal server error");
+    }
+}
+
 type Payload = {
     _id:string
 }
@@ -364,7 +377,23 @@ export const authMiddleware = (req:Request,res:Response,next:NextFunction)=>{
 
 }
 
+const updateUser = async (req:Request,res:Response)=>{
+    try{
+        const data = req.body.user
+        await userModel.findByIdAndUpdate(req.params.id,{email:data.email,
+            password:data.password,
+            username:data.username
+        })
+        res.send(200)
+    }
+    catch (err) {
+    res.status(400).send("Internal server error");
+    }
+}
+
 export default{
+    updateUser,
+    getUserByUsername,
     googleLogIn,
     googleRegister,
     register,

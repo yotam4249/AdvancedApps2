@@ -1,6 +1,7 @@
 import express from "express";
 const router= express.Router();
 import authController from "../controllers/auth_controller" 
+import { auth } from "google-auth-library";
 
 /**
 * @swagger
@@ -143,5 +144,9 @@ router.post("/logout", authController.logout);
 router.post("/refresh", authController.refresh);
 
 router.get("/users/:id", authController.getUserById);
+
+router.get("/username", authController.getUserByUsername);
+
+router.put("/userUpdate",authController.updateUser)
 
 export default router
