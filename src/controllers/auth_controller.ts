@@ -38,18 +38,41 @@ const client = new OAuth2Client();
 
 const register = async(req:Request,res:Response)=>{
     try{
+        console.log("2")
+        let flag = true;
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(req.body.password,salt)
         if(!req.body.imgUrl)
         {
             req.body.imgUrl = "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png"
         }
-        const user = await userModel.create({
-            username:req.body.username,
-            email:req.body.email,
-            password:hashedPassword,
-            imgUrl:req.body.imgUrl
-        })
+        
+        const existingUsername = await userModel.findOne({username:req.body.username})
+        const existingEmail = await userModel.findOne({email:req.body.email})
+        
+        console.log("3")
+        let user = {
+            username:"",
+                email:"",
+        };
+        if(existingEmail== null || existingUsername == null)
+        {
+            console.log("3.1")
+            user = await userModel.create({
+                username:req.body.username,
+                email:req.body.email,
+                password:hashedPassword,
+                imgUrl:req.body.imgUrl
+            })
+             
+            console.log("4")
+        }
+        else{
+            user.email = ""
+            user.username = ""
+            console.log("5")
+        }
+        console.log(user)
         res.status(200).send(user)
     }catch(err){
         res.status(400).send(err)
@@ -99,11 +122,11 @@ const googleRegister = async(req:Request,res:Response) =>{
             }
             else{
                 res.json({
-                    username:user.username,
-                    flag:-999,
-                    email: user.email,
-                    id: user._id,
+                    username:"",
+                    email:"",
+                    id: "",
                     imgUrl: "", 
+                    
                 })
             }
             
@@ -116,7 +139,7 @@ const googleRegister = async(req:Request,res:Response) =>{
 
 const login =  async(req:Request,res:Response)=>{
     try{
-        const user = await userModel.findOne({email:req.body.email})
+        const user = await userModel.findOne({username:req.body.username})
         if(!user){
             res.status(400).send('bad info')
             return
@@ -153,6 +176,47 @@ const login =  async(req:Request,res:Response)=>{
     }
 }
 
+const googleLogIn=async(req:Request,res:Response) =>{
+    try{
+        const {credential} = req.body
+        if(!credential){
+             res.status(400).send('no credential')
+        }
+        const ticket = await client.verifyIdToken({
+            idToken:credential,
+            audience:process.env.GOOGLE_CLIENT_ID
+        })
+        const payload =  ticket.getPayload()
+        if(!payload?.email){
+            res.status(400).send('Missing email from google')
+        }
+        else{
+            let user = await userModel.findOne({email:payload.email})
+            if(user != null){
+                const tokens = generateTokens(user._id.toString());
+                res.json({
+                    username:user.username,
+                    email:user.email,
+                    id:user._id,
+                    imgUrl:user.imgUrl,
+                    ...tokens
+                })
+            }
+            else{
+                res.json({
+                    username:"",
+                    email:"",
+                    id: "",
+                    imgUrl: "", 
+                    tokens:""
+                })
+            }
+        }
+    }catch(err){
+        console.error("Google Sign-In Error:", err);
+        res.status(400).json({ message: "Authentication failed" });
+    }
+}
 
 const logout = async(req:Request,res:Response)=>{
     const refreshToken = req.body.refreshToken
@@ -301,6 +365,7 @@ export const authMiddleware = (req:Request,res:Response,next:NextFunction)=>{
 }
 
 export default{
+    googleLogIn,
     googleRegister,
     register,
     login,

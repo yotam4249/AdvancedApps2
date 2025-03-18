@@ -5,9 +5,10 @@ export interface iUser {
     username:string,
     email:string,
     password : string,
-    _id?:string
-    refreshTokens?:string[]
-    imgUrl?:string
+    _id?:string,
+    refreshTokens?:string[],
+    imgUrl?:string,
+    
 }
 
 const userSchema= new moongose.Schema<iUser>({

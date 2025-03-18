@@ -93,7 +93,7 @@ router.post("/google", authController.googleRegister);
 */
 
 router.post("/login", authController.login);
-
+router.post("/googleLog", authController.googleLogIn);
 
 
 /**
