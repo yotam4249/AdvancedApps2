@@ -75,72 +75,89 @@ export class BaseController<T>{
     }
 
     async like(req: Request, res: Response): Promise<void> {
-    try {
-        const { id } = req.params;
-
-        if (!mongoose.Types.ObjectId.isValid(id)) {
+        try {
+          const { id } = req.params;
+          const userId = req.params.userId; // from your authMiddleware
+    
+          if (!mongoose.Types.ObjectId.isValid(id)) {
             console.error(`❌ Invalid ObjectId format: ${id}`);
             res.status(404).send({ message: "Item not found" });
             return;
-        }
-
-        const item = await this.model.findById(id);
-        if (!item) {
-            console.error(`❌ Post not found: ${id}`);
+          }
+    
+          const item = await this.model.findById(id);
+          if (!item) {
+            console.error(`❌ Item not found: ${id}`);
             res.status(404).send({ message: "Item not found" });
             return;
-        }
-
-        if ((item as any).likes === undefined) {
-            console.error(`❌ Likes not supported for this model: ${id}`);
-            res.status(400).send({ message: "Likes not supported for this model" });
-            return;
-        }
-
-        (item as any).likes += 1;
-
-        // 🔥 FIX: Ensure `save()` is awaited before responding
-        await item.save();
-
-        console.log(`✅ Post ${id} liked successfully! Total likes: ${(item as any).likes}`);
-
-        res.send({ message: "Liked successfully!", likes: (item as any).likes });
-    } catch (error) {
-        console.error("❌ Error in like method:", error);
-        res.status(500).send({ message: "Internal server error", error });
-    }
-}
-
+          }
     
-    async getLikes(req: Request, res: Response): Promise<void> {
-        try {
-            const { id } = req.params;
+          const anyItem = item as any;
     
-            if (!mongoose.Types.ObjectId.isValid(id)) {
-                console.error(`Invalid ObjectId format: ${id}`);
-                res.status(404).send({ message: "Item not found" });
-                return;
-            }
+          // Ensure "likes" is an array of user IDs
+          if (!Array.isArray(anyItem.likes)) {
+            anyItem.likes = [];
+          }
     
-            const item = await this.model.findById(id);
-            if (!item) {
-                console.error(`Post not found: ${id}`);
-                res.status(404).send({ message: "Item not found" });
-                return;
-            }
+          const alreadyLiked = anyItem.likes.includes(userId);
+          if (alreadyLiked) {
+            // "Unlike" => remove user from array
+            anyItem.likes = anyItem.likes.filter((uid: string) => uid !== userId);
+            console.log(`✅ ${id} unliked by user ${userId}`);
+          } else {
+            // "Like" => add user to array
+            anyItem.likes.push(userId);
+            console.log(`✅ ${id} liked by user ${userId}`);
+          }
     
-            if ((item as any).likes === undefined) {
-                console.error(`Likes not supported for this model: ${id}`);
-                res.status(400).send({ message: "Likes not supported for this model" });
-                return;
-            }
+          await item.save();
     
-            res.send({ likes: (item as any).likes });
+          // Return the updated array and its length
+          res.send({
+            message: alreadyLiked ? "Like removed" : "Liked successfully!",
+            likeCount: anyItem.likes.length,
+            likes: anyItem.likes,
+          });
         } catch (error) {
-            console.error("❌ Error in getLikes method:", error);
-            res.status(500).send({ message: "Internal server error", error });
+          console.error("❌ Error in like method:", error);
+          res.status(500).send({ message: "Internal server error", error });
         }
-    }
+      }
+      
+
+    
+      async getLikes(req: Request, res: Response): Promise<void> {
+        try {
+          const { id } = req.params;
+    
+          if (!mongoose.Types.ObjectId.isValid(id)) {
+            console.error(`❌ Invalid ObjectId format: ${id}`);
+            res.status(404).send({ message: "Item not found" });
+            return;
+          }
+    
+          const item = await this.model.findById(id);
+          if (!item) {
+            console.error(`❌ Item not found: ${id}`);
+            res.status(404).send({ message: "Item not found" });
+            return;
+          }
+    
+          const anyItem = item as any;
+          if (!Array.isArray(anyItem.likes)) {
+            anyItem.likes = [];
+          }
+    
+          // Return the array of user IDs and the count
+          res.send({
+            likeCount: anyItem.likes.length,
+            likes: anyItem.likes,
+          });
+        } catch (error) {
+          console.error("❌ Error in getLikes method:", error);
+          res.status(500).send({ message: "Internal server error", error });
+        }
+      }
     
     
     

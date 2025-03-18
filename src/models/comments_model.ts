@@ -5,7 +5,7 @@ export interface iComment {
     comment:string,
     postId : string,
     owner: string,
-    likes:number
+    likes?: string[],
 
 }
 const commentSchema= new moongose.Schema<iComment>({
@@ -18,9 +18,10 @@ const commentSchema= new moongose.Schema<iComment>({
     postId: {type :String,
         required:true,
     }, 
-    likes: {type :Number,
-        default:0
-    }
+    likes: {
+        type: [String],
+        default: [],
+      },
 });
 
 const commentModel=moongose.model<iComment>('Comments',commentSchema)
