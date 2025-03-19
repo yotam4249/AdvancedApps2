@@ -1,4 +1,4 @@
-import { NextFunction, Request,Response } from "express"
+import { NextFunction, Request,Response, RequestHandler } from "express"
 import userModel from "../models/users_model"
 import bcrypt from 'bcrypt'
 import jwt , {SignOptions} from 'jsonwebtoken'
@@ -36,48 +36,98 @@ const client = new OAuth2Client();
     return { accessToken, refreshToken };
 }
 
-const register = async(req:Request,res:Response)=>{
-    try{
-        console.log("2")
-        let flag = true;
-        const salt = await bcrypt.genSalt(10)
-        const hashedPassword = await bcrypt.hash(req.body.password,salt)
-        if(!req.body.imgUrl)
-        {
-            req.body.imgUrl = "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png"
-        }
+
+const register: RequestHandler = async (req: Request, res: Response) => {
+    try {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(req.body.password, salt);
+  
+      if (!req.body.imgUrl) {
+        req.body.imgUrl =
+          "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png";
+      }
+  
+      // Check if username/email already exist
+      const existingUsername = await userModel.findOne({ username: req.body.username });
+      const existingEmail = await userModel.findOne({ email: req.body.email });
+  
+      if (existingUsername) {
         
-        const existingUsername = await userModel.findOne({username:req.body.username})
-        const existingEmail = await userModel.findOne({email:req.body.email})
-        
-        console.log("3")
-        let user = {
-            username:"",
-                email:"",
-        };
-        if(existingEmail== null || existingUsername == null)
-        {
-            console.log("3.1")
-            user = await userModel.create({
-                username:req.body.username,
-                email:req.body.email,
-                password:hashedPassword,
-                imgUrl:req.body.imgUrl
-            })
-             
-            console.log("4")
-        }
-        else{
-            user.email = ""
-            user.username = ""
-            console.log("5")
-        }
-        console.log(user)
-        res.status(200).send(user)
-    }catch(err){
-        res.status(400).send(err)
+        res.status(409).json({ message: "Username is already taken." });
+        return;
+      }
+  
+      if (existingEmail) {
+         res.status(409).json({ message: "Email is already taken." });
+         return;
+      }
+  
+      const user = await userModel.create({
+        username: req.body.username,
+        email: req.body.email,
+        password: hashedPassword,
+        imgUrl: req.body.imgUrl,
+      });
+  
+      res.status(201).json(user);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Internal server error", error: err });
     }
-}
+  };
+  
+
+// const register : RequestHandler = async(req:Request,res:Response)=>{
+//     try{
+//         console.log("2")
+//         let flag = true;
+//         const salt = await bcrypt.genSalt(10)
+//         const hashedPassword = await bcrypt.hash(req.body.password,salt)
+//         if(!req.body.imgUrl)
+//         {
+//             req.body.imgUrl = "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png"
+//         }
+        
+//         const existingUsername = await userModel.findOne({username:req.body.username})
+//         const existingEmail = await userModel.findOne({email:req.body.email})
+        
+//         console.log("3")
+//         let user = {
+//             username:"",
+//                 email:"",
+//         };
+        
+//         if (existingUsername) {
+//             res.status(409).json({ message: "Username is already taken." });
+//             return;
+//         }
+//         if(existingEmail){
+//             res.status(400).send("Email already exists");
+//             return;
+//         }
+//         if(existingEmail== null || existingUsername == null)
+//         {
+//             console.log("3.1")
+//             user = await userModel.create({
+//                 username:req.body.username,
+//                 email:req.body.email,
+//                 password:hashedPassword,
+//                 imgUrl:req.body.imgUrl
+//             })
+             
+//             console.log("4")
+//         }
+//         else{
+//             user.email = ""
+//             user.username = ""
+//             console.log("5")
+//         }
+//         console.log(user)
+//         res.status(200).send(user)
+//     }catch(err){
+//         res.status(400).send(err)
+//     }
+// }
 
 const googleRegister = async(req:Request,res:Response) =>{
     try{
@@ -376,22 +426,92 @@ export const authMiddleware = (req:Request,res:Response,next:NextFunction)=>{
 
 
 }
+const updateUser: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const data = req.body.user;
+      const existingUser = await userModel.findById(data._id);
+      if (!existingUser) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+  
+      if (data.username !== existingUser.username) {
+        const usernameTaken = await userModel.findOne({ username: data.username });
+        if (usernameTaken) {
+          res.status(409).json({ message: "Username is already taken." });
+          return;
+        }
+      }
+  
+      if (data.email !== existingUser.email) {
+        const emailTaken = await userModel.findOne({ email: data.email });
+        if (emailTaken) {
+          res.status(409).json({ message: "Email is already taken." });
+          return;
+        }
+      }
+  
+      if (data.password && data.password !== existingUser.password) {
+        const salt = await bcrypt.genSalt(10);
+        existingUser.password = await bcrypt.hash(data.password, salt);
+      }
+  
+      existingUser.username = data.username;
+      existingUser.email = data.email;
+      existingUser.imgUrl = data.imgUrl;
+  
+      await existingUser.save();
+      res.status(200).json({ message: "User updated successfully." });
+    } catch (err) {
+      res.status(500).json({ message: "Internal server error", error: err });
+    }
+  };
+  
 
-const updateUser = async (req:Request,res:Response)=>{
-    try{
-        const data = req.body.user
-        const response = await userModel.findByIdAndUpdate(data._id,
-            {
-                email:data.email,
-                password:data.password,
-                username:data.username
-            })
-        res.status(200).send()
-    }
-    catch (err) {
-    res.status(400).send("Internal server error");
-    }
-}
+// const updateUser = async (req: Request, res: Response) => {
+//     try {
+//       const data = req.body.user;
+//       const oldUser = await userModel.findById(data._id);
+//       if (!oldUser) {
+//          res.status(404).json({ message: "User not found" });
+//          return
+//       }
+  
+//       // 1) If user is changing username, see if that username is taken
+//       if (data.username !== oldUser.username) {
+//         const existingUsername = await userModel.findOne({
+//           username: data.username,
+//         });
+//         if (existingUsername) {
+//              res.status(409).json({ message: "Username is already taken." });
+//              return
+//         }
+//       }
+  
+//       // 2) If user is changing email, see if that email is taken
+//       if (data.email !== oldUser.email) {
+//         const existingEmail = await userModel.findOne({ email: data.email });
+//         if (existingEmail) {
+//           res.status(409).json({ message: "Email is already taken." });
+//           return
+//         }
+//       }
+  
+//       // 3) If both checks pass, do the update
+//       await userModel.findByIdAndUpdate(data._id, {
+//         username: data.username,
+//         email: data.email,
+//         password: data.password,
+//         imgUrl: data.imgUrl, 
+//       });
+  
+//       res.status(200).send();
+//     } catch (err) {
+//       console.error(err);
+//       res.status(400).send("Internal server error");
+//     }
+//   };
+  
 
 export default{
     updateUser,
