@@ -43,8 +43,7 @@ const register: RequestHandler = async (req: Request, res: Response) => {
       const hashedPassword = await bcrypt.hash(req.body.password, salt);
   
       if (!req.body.imgUrl) {
-        req.body.imgUrl =
-          "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png";
+        req.body.imgUrl ="../public/avatar.png";
       }
   
       // Check if username/email already exist
@@ -428,7 +427,9 @@ export const authMiddleware = (req:Request,res:Response,next:NextFunction)=>{
 }
 const updateUser: RequestHandler = async (req: Request, res: Response): Promise<void> => {
     try {
+        
       const data = req.body.user;
+      console.log("img:      ",data.imgUrl)
       const existingUser = await userModel.findById(data._id);
       if (!existingUser) {
         res.status(404).json({ message: "User not found" });
@@ -459,7 +460,7 @@ const updateUser: RequestHandler = async (req: Request, res: Response): Promise<
       existingUser.username = data.username;
       existingUser.email = data.email;
       existingUser.imgUrl = data.imgUrl;
-  
+      console.log("img:      ",data.imgUrl)
       await existingUser.save();
       res.status(200).json({ message: "User updated successfully." });
     } catch (err) {
