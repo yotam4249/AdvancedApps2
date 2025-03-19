@@ -12,7 +12,7 @@ import swaggerJsDoc from "swagger-jsdoc"
 import fileRouter from "./routes/file_routes"
 import cors from "cors";
 import path from "path";
-
+import cookieParser from "cookie-parser";
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
@@ -38,8 +38,16 @@ app.use((req,res,next)=>{
 //         next(); // ✅ Ensure `next()` is called for other requests
 //     }
 // });
-app.use(cors());
-const storagePath = "C:\\Users\\eliav\\myapp1\\Task2EY\\AdvancedApps2\\storage"; 
+app.use(
+    cors({
+      origin: "http://localhost:5173", 
+      credentials: true, 
+      methods: "GET,POST,PUT,DELETE", 
+      allowedHeaders: "Content-Type,Authorization", 
+    })
+  );
+  app.use(cookieParser());
+const storagePath = "/Users/yotammizrahi/Desktop/Projects/AdvancedApps2/storage"; 
 
 //  app.use(cors({
 //      origin: "http://localhost:5173", // Allow frontend access
