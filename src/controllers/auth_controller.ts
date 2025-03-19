@@ -215,7 +215,12 @@ const login =  async(req:Request,res:Response)=>{
         }
         user.refreshTokens.push(tokens.refreshToken)
         await user.save()
-
+        res.cookie("refreshToken", tokens.refreshToken, {
+            httpOnly: true,  
+            secure: true,    
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000, 
+        });
         res.status(200).send({
                 refreshToken:tokens.refreshToken,
                 accessToken:tokens.accessToken,
@@ -269,7 +274,8 @@ const googleLogIn=async(req:Request,res:Response) =>{
 }
 
 const logout = async(req:Request,res:Response)=>{
-    const refreshToken = req.body.refreshToken
+    const refreshToken = req.body.refreshToken || req.cookies.refreshToken; 
+
     if(!refreshToken)
     {
         res.status(400).send("no token")
@@ -308,6 +314,7 @@ const logout = async(req:Request,res:Response)=>{
             }
             user.refreshTokens = user.refreshTokens.filter((token)=> token !== refreshToken)
             await user.save()
+            res.clearCookie("refreshToken");
             res.status(200).send("logged out")
         }catch(err){
             res.status(400).send(err)
@@ -317,7 +324,8 @@ const logout = async(req:Request,res:Response)=>{
 }
 
 const refresh = async(req:Request,res:Response)=>{
-    const refreshToken = req.body.refreshToken
+    const refreshToken = req.cookies?.refreshToken || req.body.refreshToken; 
+
     if(!refreshToken)
     {
         res.status(400).send("bad token")
@@ -361,6 +369,12 @@ const refresh = async(req:Request,res:Response)=>{
             user.refreshTokens = user.refreshTokens.filter((token)=> token !== refreshToken)
             user.refreshTokens.push(newTokens.refreshToken)
             await user.save()
+            res.cookie("refreshToken", newTokens.refreshToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "strict",
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+            });
             res.status(200).send({
                 accessToken:newTokens.accessToken,
                 refreshToken:newTokens.refreshToken
