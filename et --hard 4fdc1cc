@@ -1,0 +1,60 @@
+[33m94ff9a1[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m production
+[33m55dbd67[m production
+[33m4fdc1cc[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m cors fixed
+[33m9f834e2[m Update server.ts
+[33mee29a09[m cookies done!
+[33m5f8d35d[m Revert "profile fix"
+[33mdf885e7[m profile fix
+[33m6bec613[m every things works , profile edits end all the rest
+[33m9a2eafb[m like is limited
+[33m051e3ed[m profile
+[33m2b2b97f[m profile, getusername
+[33m3a96c96[m registration,login,username
+[33m7585422[m Revert "reg username check"
+[33mdaed3d4[m reg username check
+[33m924d28a[m login auth google
+[33m292056e[m Merge branch 'main' of https://github.com/yotam4249/AdvancedApps2
+[33mce4d876[m fixes
+[33m2673ab5[m alert google auth
+[33m38e5f44[m google auth
+[33m08efc12[m googleAuth
+[33m87526d7[m imgUrlPost
+[33m1b228c9[m base
+[33m6027f18[m aded postimage
+[33m2e2d782[m can use storage folder
+[33mae515f4[m modular code and like adede
+[33m55d6248[m Merge branch 'main' of https://github.com/yotam4249/AdvancedApps2
+[33m68b20e2[m nothing
+[33mf6a4848[m Update .gitignore
+[33m50c5a85[m auth fixed
+[33m8c95969[m registration almost completed
+[33m01323c0[m p
+[33m85d871a[m SOME UPDATES
+[33m4136f4a[m cross origin
+[33m85ab6ed[m continue
+[33mb827f1e[m Merge branch 'main' of https://github.com/yotam4249/AdvancedApps2
+[33m726bce3[m fix
+[33m90ce007[m fixed
+[33mebe541b[m fix
+[33m1c5cee7[m fix
+[33m3634a36[m fixes
+[33m464d69c[m coverage tests
+[33m22b0261[m fixes
+[33mec42e04[m postId comment fix
+[33m9e34ec0[m comments- update done
+[33m5fbe4d2[m all set
+[33mf715519[m tests done
+[33m8e0a55b[m tests done
+[33ma315ec9[m Swagger fixed
+[33m1160da0[m need to fix problems in Comment swagger
+[33mbfed18e[m Update posts.test.ts
+[33m1acf60c[m swgger continue
+[33mf7315d3[m Update auth_controller.ts
+[33m413578c[m swagger+ others
+[33m58b6f96[m First commit
+[33m2e881a7[m Update request.rest
+[33me1d45ab[m all set
+[33m76b4ee3[m Comments beggining
+[33mc770f53[m post by sender fixed
+[33ma37e3b9[m more api
+[33m218b0a3[m first commit
