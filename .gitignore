@@ -11,3 +11,6 @@
 /src/front
 /storage
 /server
+/.env_prod
+./env_dev
+./env_test
