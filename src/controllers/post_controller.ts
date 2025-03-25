@@ -1,7 +1,7 @@
 import { Request,Response } from "express";
 import postModel ,{ iPost } from "../models/posts_model"
 import {BaseController} from "./base_controller"
-
+import commentModel from "../models/comments_model";
 
 class PostsController extends BaseController<iPost>{
     constructor(){
@@ -28,6 +28,17 @@ class PostsController extends BaseController<iPost>{
             console.log(data.imgUrlPost)
             }
             catch(error){res.status(400).send(error)}
+    }
+
+    async deleteById(req:Request,res:Response){
+        try{
+            console.log("id     ",req.params.id)
+            await commentModel.deleteMany({postId:req.params.id})
+            await postModel.findByIdAndDelete(req.params.id)
+            res.status(200).send()
+        }catch(err){
+            res.status(400).send('error')
+        }
     }
 }
 

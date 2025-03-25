@@ -44,7 +44,7 @@ const register: RequestHandler = async (req: Request, res: Response) => {
   
       if (!req.body.imgUrl) {
         req.body.imgUrl =
-          "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png";
+          "../avatar.png";
       }
   
       // Check if username/email already exist
@@ -159,14 +159,14 @@ const googleRegister = async(req:Request,res:Response) =>{
                     username:payload.name,
                     email: payload.email,
                     password: "", 
-                    imgUrl: payload.picture || "",
+                    imgUrl: "../avatar.png",
                 });
                 const tokens = generateTokens(user._id.toString());
                 res.json({
                     username:user.username,
                     email: user.email,
                     id: user._id,
-                    imgUrl: "",    
+                    imgUrl: "../avatar.png",    
                     ...tokens,
                 });
             }
@@ -175,7 +175,7 @@ const googleRegister = async(req:Request,res:Response) =>{
                     username:"",
                     email:"",
                     id: "",
-                    imgUrl: "", 
+                    imgUrl: "",
                     
                 })
             }
@@ -401,13 +401,17 @@ const getUserById = async (req: Request, res: Response) => {
 
 const getUserByUsername = async (req: Request, res: Response) => {
     try {
+        console.log(1)
         const user = await userModel.find({username:req.query.username});
+        console.log(user)
         if (!user) {
             res.status(404).send("User not found");
+            console.log(3)
             return;
         }
         res.status(200).json(user);
     } catch (err) {
+        console.log(2)
         res.status(500).send("Internal server error");
     }
 }

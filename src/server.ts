@@ -13,6 +13,7 @@ import fileRouter from "./routes/file_routes"
 import cors from "cors";
 import path from "path";
 import cookieParser from "cookie-parser";
+import openaiRoutes from "./routes/openai-routes";
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
@@ -27,6 +28,12 @@ app.use((req,res,next)=>{
     credentials: true;
     next();
 })
+
+
+
+// Serve static files from React build
+
+
 // app.use((req: Request, res: Response, next: NextFunction): void => {
 //     res.setHeader("Access-Control-Allow-Origin", "*"); // ✅ Allow all origins
 //     res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS"); // ✅ Explicitly allow PATCH
@@ -47,9 +54,10 @@ app.use(
     })
   );
   app.use(cookieParser());
-const storagePath = "/Users/yotammizrahi/Desktop/Projects/AdvancedApps2/storage"; 
+//const storagePath = "/Users/yotammizrahi/Desktop/Projects/AdvancedApps2/storage"; 
 //const storagePath = "C:\Users\eliav\myapp1\Task2EY\AdvancedApps2\storage";
 
+const storagePath = "/home/st111/AdvancedApps2/storage"
 
 
 //  app.use(cors({
@@ -59,15 +67,11 @@ const storagePath = "/Users/yotammizrahi/Desktop/Projects/AdvancedApps2/storage"
 //      credentials: true // Needed if using authentication (JWT, cookies, etc.)
 //  }));
 const delay = (req: Request, res: Response, next: NextFunction) => {
-    // const d = new Promise<void>((r) => setTimeout(() => r(), 2000));
-    // d.then(() => next());
-     next();
+    const d = new Promise<void>((r) => setTimeout(() => r(), 75));
+    d.then(() => next());
+    //  next();
   };
-//   app.use((req, res, next) => {
-//     res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
-//     res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
-//     next();
-// });
+  app.use("/openai", openaiRoutes);
 app.use("/posts",delay,postRoutes);
 app.use("/comments",delay,commentsRoutes);
 app.use("/auth",delay,authRoutes)
@@ -75,6 +79,13 @@ app.use("/file",fileRouter)
 app.use("/public",express.static("public"));
 app.use(express.static("/front"));
 app.use('/storage', express.static(storagePath));
+
+//   app.use((req, res, next) => {
+//     res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+//     res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+//     next();
+// });
+
 
 
 const options = {
@@ -85,13 +96,24 @@ const options = {
             version: "1.0.0",
             description: "REST server including authentication using JWT",
         },
-    servers: [{url: "http://localhost:"+process.env.PORT,},],
+    servers: [{url: "http://localhost:"+process.env.PORT,},{url: "http://node33.cs.colman.ac.il:"+process.env.PORT,},
+        {url: "https://node33.cs.colman.ac.il:"+process.env.PORT,}
+    ],
 
     },
     apis: ["./src/routes/*.ts"],
 };
     const specs = swaggerJsDoc(options);
     app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
+
+    
+    const frontPath = path.resolve(__dirname, '../front');
+    app.use(express.static(frontPath));
+
+    // Serve index.html for all other routes (React Router support)
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(frontPath, 'index.html'));
+    });
 
 
 const initApp = ()=>{
